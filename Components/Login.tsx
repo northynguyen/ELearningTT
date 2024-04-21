@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { onGoogleButtonPress } from '../API/HandleLoginGoogle';
 import {
   Dimensions,
   Image,
@@ -23,13 +24,17 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-import { onGoogleButtonPress } from '../API/HandleLoginGoogle';
+import { AuthContext } from '../Context/AuthContext';
 
 GoogleSignin.configure({
   webClientId: '1065593939332-8sb3vk3fn42f6tca0pkdt98cbufp47lg.apps.googleusercontent.com',
 })
-function App(this: any): React.JSX.Element {
 
+export default function Login(this: any): React.JSX.Element {
+  const { userData, setUserData } = useContext(AuthContext)
+  const handleLogin = async () => {
+    await onGoogleButtonPress(setUserData);
+  };
   return (
     <View style={styles.container}>
       <Image
@@ -39,7 +44,7 @@ function App(this: any): React.JSX.Element {
       <View style={styles.footer}>
         <Text style={styles.text_welcome}>Welcome to Education App</Text>
         <Text style={styles.text_login}>Login/Sign up</Text>
-        <TouchableOpacity onPress={onGoogleButtonPress}>
+        <TouchableOpacity onPress={handleLogin}>
           <LinearGradient
             colors={['#0C7DE4', '#12B3C9']}
             start={{ x: 0, y: 0 }}
@@ -110,4 +115,3 @@ const styles = StyleSheet.create({
   }
 });
 
-export default App;

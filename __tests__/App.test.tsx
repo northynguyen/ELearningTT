@@ -4,7 +4,7 @@
 
 import 'react-native';
 import React from 'react';
-import App from '../UI/Login';
+import App from '../Components/Login';
 
 // Note: import explicitly to use the types shipped with jest.
 import { it } from '@jest/globals';
