@@ -21,10 +21,9 @@ import {
 } from 'react-native';
 import WelcomeHeader from './WelcomeHeader';
 import Slider from './Slider';
-import Courses from './VideoCourses';
+
 import Course from './Course';
 import VideoCourses from './VideoCourses';
-import Loading from './Loading';
 const { width, height } = Dimensions.get('window');
 
 

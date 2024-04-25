@@ -2,15 +2,19 @@ import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
 import Login from './Components/Login';
 import { AuthContext } from './Context/AuthContext';
-import Home from './Components/Home';
-import storage from '@react-native-firebase/storage';
+import { NavigationContainer } from '@react-navigation/native';
+import HomeNavigation from './Navigations/HomeNavigation';
 
 export default function App() {
     const [userData, setUserData] = React.useState(null);
     return (
         <View style={styles.container}>
             <AuthContext.Provider value={{ userData, setUserData }}>
-                {userData ? <Home /> : <Login />}
+                {userData ?
+                    <NavigationContainer>
+                        <HomeNavigation />
+                    </NavigationContainer>
+                    : <Login />}
             </AuthContext.Provider>
         </View>
     );

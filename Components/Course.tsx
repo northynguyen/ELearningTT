@@ -1,7 +1,8 @@
-import { View, Text, Dimensions, StyleSheet, FlatList, Image, ActivityIndicator } from 'react-native'
+import { View, Text, Dimensions, StyleSheet, FlatList, Image, ActivityIndicator, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import database from '@react-native-firebase/database';
 import Loading from './Loading';
+import { useNavigation } from '@react-navigation/native';
 const width = Dimensions.get('window').width;
 
 type CourseInfo = {
@@ -15,6 +16,7 @@ type CourseInfo = {
 export default function Course() {
     const [courses, setCourses] = useState<CourseInfo[]>([]);
     const [loading, setLoading] = useState(true);
+    const navigation = useNavigation();
     useEffect(() => {
         setLoading(true);
         const fetchData = async () => {
@@ -47,7 +49,10 @@ export default function Course() {
     }, []);
     if (loading) {
         return <Loading />;
-    }
+    };
+    const onPressCourse = (courses: CourseInfo) => {
+        navigation.navigate('course-detail', { courses });
+    };
     return (
         <View style={styles.container}>
             <Text style={styles.headerCourses}>Basic Popular Courses</Text>
@@ -56,13 +61,13 @@ export default function Course() {
                 keyExtractor={item => item.id}
                 horizontal
                 renderItem={({ item }) => (
-                    <View style={styles.containerCourses}>
+                    <TouchableOpacity style={styles.containerCourses} onPress={() => onPressCourse(item)}>
                         <Image source={{ uri: item.image }} style={styles.img_courses} />
                         <View style={styles.CoursesInfo}>
                             <Text style={styles.textName}>{item.name}</Text>
                             <Text style={styles.textLesson}>Lessons: {item.lessonCount}</Text>
                         </View>
-                    </View>
+                    </TouchableOpacity>
                 )}
                 showsHorizontalScrollIndicator={false}
             />
@@ -73,13 +78,13 @@ export default function Course() {
                 horizontal
                 renderItem={({ item }) => (
 
-                    <View style={styles.containerCourses}>
+                    <TouchableOpacity style={styles.containerCourses} onPress={() => onPressCourse(item)}>
                         <Image source={{ uri: item.image }} style={styles.img_courses} />
                         <View style={styles.CoursesInfo}>
                             <Text style={styles.textName}>{item.name}</Text>
                             <Text style={styles.textLesson}>Lessons: {item.lessonCount}</Text>
                         </View>
-                    </View>
+                    </TouchableOpacity>
                 )}
                 showsHorizontalScrollIndicator={false}
             />
