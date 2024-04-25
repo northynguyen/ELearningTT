@@ -3,7 +3,9 @@ import type { PropsWithChildren } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { onGoogleButtonPress } from '../API/HandleLoginGoogle';
+import database from '@react-native-firebase/database';
 import {
+  ActivityIndicator,
   Dimensions,
   Image,
   SafeAreaView,
@@ -27,11 +29,14 @@ import {
 import { AuthContext } from '../Context/AuthContext';
 
 GoogleSignin.configure({
-  webClientId: '1065593939332-8sb3vk3fn42f6tca0pkdt98cbufp47lg.apps.googleusercontent.com',
-})
+  webClientId: '1065593939332-258cvhe9b7e9ukh8mtferjt73avhtkr4.apps.googleusercontent.com',
+  iosClientId: '1065593939332-27sqkgpmi0hb6ssaqip5fm0uj6ocbjkm.apps.googleusercontent.com',
+});
+
 
 export default function Login(this: any): React.JSX.Element {
   const { userData, setUserData } = useContext(AuthContext)
+  const [loading, setLoading] = React.useState(false);
   const handleLogin = async () => {
     await onGoogleButtonPress(setUserData);
   };
@@ -55,6 +60,15 @@ export default function Login(this: any): React.JSX.Element {
           </LinearGradient>
         </TouchableOpacity>
       </View>
+      {loading && (
+        <View style={styles.loadingIndicator}>
+          <ActivityIndicator
+            size={'large'}
+            color={'grey'}
+          >
+          </ActivityIndicator>
+        </View>
+      )}
     </View>
   );
 }
@@ -112,6 +126,14 @@ const styles = StyleSheet.create({
     fontSize: 17,
     marginLeft: 10,
     fontFamily: 'Inter',
-  }
+  },
+  loadingIndicator: {
+    position: 'absolute',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    width: '100%',
+    height: '100%',
+  },
 });
 

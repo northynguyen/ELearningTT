@@ -1,5 +1,7 @@
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
 export const onGoogleButtonPress = async (setUserData) => {
+
     try {
         await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
         try {
