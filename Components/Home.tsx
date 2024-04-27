@@ -1,8 +1,7 @@
-import React, { useContext } from 'react';
-import type { PropsWithChildren } from 'react';
-import LinearGradient from 'react-native-linear-gradient';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import React, { useContext, useEffect, useState } from 'react';
+
 import {
+    ActivityIndicator,
     Dimensions,
     Image,
     Keyboard,
@@ -20,8 +19,11 @@ import {
     View,
     VirtualizedList,
 } from 'react-native';
-import { AuthContext } from '../Context/AuthContext';
 import WelcomeHeader from './WelcomeHeader';
+import Slider from './Slider';
+
+import Course from './Course';
+import VideoCourses from './VideoCourses';
 const { width, height } = Dimensions.get('window');
 
 
@@ -37,40 +39,10 @@ export default function Home(this: any): React.JSX.Element {
                     </View>
                 </TouchableWithoutFeedback>
                 <ScrollView showsVerticalScrollIndicator={false} style={styles.content}>
-                    <Image source={require('../img/introduce.png')} style={styles.img_introduce} />
-                    <View style={styles.containerCourses}>
-                        <Text style={styles.headerCourses}>Video Courses</Text>
-                        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.scrollCourses}>
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                        </ScrollView>
-                    </View>
-                    <View style={styles.containerCourses}>
-                        <Text style={styles.headerCourses}>Basic Populer Courses</Text>
-                        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.scrollCourses}>
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                        </ScrollView>
-                    </View>
-                    <View style={styles.containerCourses}>
-                        <Text style={styles.headerCourses}>Advance Courses</Text>
-                        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.scrollCourses}>
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                            <Image source={require('../img/videoCouses1.png')} style={styles.img_courses} />
-                        </ScrollView>
-                    </View>
+                    {/* <Image source={require('../img/introduce.png')} style={styles.img_introduce} /> */}
+                    <Slider />
+                    <VideoCourses />
+                    <Course />
                 </ScrollView>
             </View>
 
@@ -117,12 +89,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: 'black',
     },
-    img_introduce: {
-        height: 150,
-        width: width - 40,
-        alignSelf: 'center',
-        marginVertical: 20,
-    },
+
     img_courses: {
         height: 112.5,
         width: 200,
@@ -132,4 +99,5 @@ const styles = StyleSheet.create({
     scrollCourses: {
     },
 });
+
 
