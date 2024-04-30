@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, { useContext, useEffect, useState } from 'react';
 
 import {
@@ -24,6 +25,7 @@ import Slider from './Slider';
 
 import Course from './Course';
 import VideoCourses from './VideoCourses';
+import  Icon  from 'react-native-vector-icons/AntDesign';
 const { width, height } = Dimensions.get('window');
 
 
@@ -34,7 +36,7 @@ export default function Home(this: any): React.JSX.Element {
                 <WelcomeHeader />
                 <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
                     <View style={styles.searchBox}>
-                        <Image source={require('../img/search-logo.png')} style={styles.icon} />
+                        <Icon name='search1' size={30} color={'black'} style={styles.icon} />
                         <TextInput placeholder='Search' placeholderTextColor={'lightgray'} style={styles.searchText} />
                     </View>
                 </TouchableWithoutFeedback>

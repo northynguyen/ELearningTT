@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable prettier/prettier */
 import React, { useState, useEffect, useRef } from 'react';
 import { FlatList, Image, Dimensions, View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import storage from '@react-native-firebase/storage';
@@ -17,6 +19,7 @@ const Slider = () => {
             const result = await folderRef.listAll();
             const urls = await Promise.all(result.items.map(item => item.getDownloadURL()));
             setImages(urls);
+            console.log(urls);
             setLoading(false);
         };
         fetchImages();
