@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+/* eslint-disable quotes */
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import React, {useEffect, useState} from 'react';
 import database from '@react-native-firebase/database';
 import Loading from './Loading';
 import {useNavigation} from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore';
+import Icon from 'react-native-vector-icons/AntDesign';
 const width = Dimensions.get('window').width;
 
 type CourseInfo = {
@@ -28,6 +30,7 @@ export default function Course() {
   const [courses, setCourses] = useState<CourseInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
@@ -60,8 +63,6 @@ export default function Course() {
           }
         }
         setCourses(loadedCourses);
-        console.log('////// Courses');
-        console.log(loadedCourses);
         setLoading(false);
       });
       return () => db.off('value', listener); // Clean up the listener on unmount
@@ -74,9 +75,15 @@ export default function Course() {
   const onPressCourse = (course: CourseInfo) => {
     navigation.navigate('course-detail', {courseDetail: course});
   };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.headerCourses}>Basic Popular Courses</Text>
+      <View style={{flexDirection:"row",justifyContent:"space-between"}}>
+        <Text style={styles.headerCourses}>Basic Popular Courses</Text>
+        <TouchableOpacity style={{paddingBottom:10}}>
+            <Icon name= "plussquareo" size={30} color="black" />
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={courses.filter(item => item.type === 'text')}
         keyExtractor={item => item.id}
@@ -94,7 +101,13 @@ export default function Course() {
         )}
         showsHorizontalScrollIndicator={false}
       />
-      <Text style={styles.headerCourses}>Advance Popular Courses</Text>
+
+      <View style={{flexDirection:"row",justifyContent:"space-between"}}>
+        <Text style={styles.headerCourses}>Advance Popular Courses</Text>
+        <TouchableOpacity style={{paddingBottom:10}}>
+            <Icon name= "plussquareo" size={30} color="black" />
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={courses.filter(item => item.type === 'advance')}
         keyExtractor={item => item.id}

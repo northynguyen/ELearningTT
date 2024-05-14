@@ -3,6 +3,7 @@ import React from 'react';
 import { AuthContext } from '../Context/AuthContext';
 import { useContext } from 'react';
 export default function WelcomeHeader() {
+    // eslint-disable-next-line no-unused-vars
     const { userData, setUserData } = useContext(AuthContext);
     return (
         <View style={styles.UI_userInfo}>
@@ -12,7 +13,7 @@ export default function WelcomeHeader() {
             </View>
             <Image source={{ uri: userData?.photo }} style={styles.avatar} />
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -36,4 +37,5 @@ const styles = StyleSheet.create({
         marginRight: 20,
         borderRadius: 50,
     },
+// eslint-disable-next-line eol-last
 });

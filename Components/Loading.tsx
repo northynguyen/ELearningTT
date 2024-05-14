@@ -1,5 +1,7 @@
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
-import React from 'react'
+/* eslint-disable semi */
+/* eslint-disable react/self-closing-comp */
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import React from 'react';
 
 export default function Loading() {
     return (
@@ -11,8 +13,8 @@ export default function Loading() {
             </ActivityIndicator>
         </View>
 
-    )
-};
+    );
+}
 const styles = StyleSheet.create({
     loadingIndicator: {
         position: 'absolute',
@@ -23,4 +25,5 @@ const styles = StyleSheet.create({
         height: '100%',
 
     },
+// eslint-disable-next-line eol-last
 })

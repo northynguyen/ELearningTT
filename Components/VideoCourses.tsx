@@ -1,8 +1,5 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable quotes */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable prettier/prettier */
+
 import React, {useState, useEffect} from 'react';
 import {
   View,
@@ -17,6 +14,7 @@ import {
 import database from '@react-native-firebase/database';
 import Loading from './Loading';
 import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 const width = Dimensions.get('window').width;
 type VideoInfo = {
@@ -33,9 +31,7 @@ export default function VideoCourses() {
     setLoading(true);
     const fetchData = async () => {
       const db = database().ref('/VideoSource');
-      console.log(db);
       const listener = db.on('value', snapshot => {
-        console.log("hello");
         const data = snapshot.val();
         const loadedImages = [];
         // Kiểm tra data không phải là null hoặc undefined trước khi lặp
@@ -74,7 +70,12 @@ export default function VideoCourses() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.headerCourses}>Video Courses</Text>
+      <View style={{flexDirection:"row",justifyContent:"space-between"}}>
+        <Text style={styles.headerCourses}>Video Courses</Text>
+          <TouchableOpacity style={{paddingBottom:10}}>
+              <Icon name= "plussquareo" size={30} color="black" />
+          </TouchableOpacity>
+      </View>
       <FlatList
         data={images}
         keyExtractor={item => item.id}

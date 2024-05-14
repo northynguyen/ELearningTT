@@ -1,16 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable prettier/prettier */
-/* eslint-disable semi */
-/* eslint-disable no-trailing-spaces */
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable prettier/prettier */
-/* eslint-disable quotes */
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable prettier/prettier */
-import { View, Text, ScrollView } from 'react-native';
+ /* eslint-disable quotes */
+import { View, Text, ScrollView, FlatList, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { FlatList } from 'react-native';
-import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import database from '@react-native-firebase/database';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -18,80 +8,81 @@ import Icon from 'react-native-vector-icons/AntDesign';
 type LessonInfo = {
     id: string;
     name: string;
-  };
-export default function CourseContent({ id , courseType}: { id: string , courseType: string}) {
+};
+
+export default function CourseContent({ id, courseType, userProgress, courseDetail }: { id: string, courseType: string, userProgress: any, courseDetail: any }) {
     const navigation = useNavigation();
     const [loading, setLoading] = useState(true);
     const [lessons, setLessons] = useState<LessonInfo[]>([]);
     const [dtbase, setDatabase] = useState('');
+
     useEffect(() => {
         setLoading(true);
         const fetchData = async () => {
-          var db: any;
-          if (courseType === 'text' || courseType === 'advance') {
-              db = database().ref('/CourseList/' + id + '/Lesson');
-              setDatabase('/CourseList/' + id + '/Lesson');
-          }
-          else {
-              console.log('.........../VideoSource/' + id + '/Lesson');
-              db = database().ref('/VideoSource/' + id + '/Lesson');
-              setDatabase('/VideoSource/' + id + '/Lesson');
-          }
-          console.log('.;;;'+db);
-          const listener = db.on('value', (snapshot: { val: () => any; }) => {
-            const data = snapshot.val();
-            console.log(data);
-            const loadedLessons = [];
-            // Kiểm tra data không phải là null hoặc undefined trước khi lặp
-            if (data) {
-
-              for (let id in data) {
-                // Kiểm tra thêm để đảm bảo data[id] không phải là null hoặc undefined
-                if (
-                    data[id] &&
-                    data[id].Name 
-                ) {
-                    console.log("them vao 1");
-                  loadedLessons.push({
-                    id,
-                    name: data[id].Name,
-                  });
-                }
-              }
+            let db;
+            if (courseType === 'text' || courseType === 'advance') {
+                db = database().ref(`/CourseList/${id}/Lesson`);
+                setDatabase(`/CourseList/${id}/Lesson`);
+            } else {
+                db = database().ref(`/VideoSource/${id}/Lesson`);
+                setDatabase(`/VideoSource/${id}/Lesson`);
             }
-            setLessons(loadedLessons);
-            console.log(loadedLessons);
-            setLoading(false);
-          });
-          return () => db.off('value', listener); // Clean up the listener on unmount
+            const listener = db.on('value', (snapshot) => {
+                const data = snapshot.val();
+                const loadedLessons: LessonInfo[] = [];
+                if (data) {
+                    for (let id in data) {
+                        if (data[id] && data[id].Name) {
+                            loadedLessons.push({
+                                id,
+                                name: data[id].Name,
+                            });
+                        }
+                    }
+                }
+                setLessons(loadedLessons);
+                setLoading(false);
+            });
+            return () => db.off('value', listener);
         };
         fetchData();
-      }, []);
-      if (loading) {
-        return <Text style={{fontSize: 20, color: 'black'}}>Loading...</Text>;
-      }
-    // const checkUserProgress = (contentId: any) => {
-    //     return userProgress.find(item => item.courseContentId == contentId);
-    // };
+    }, [id, courseType]);
 
-    const onChapterPress = (lesson:LessonInfo)=>{
-        if (courseType === 'text' || courseType === 'advance')
-        {
-          navigation.navigate('course-chapter',{lesson,ref:dtbase})
-        }
-      else {
-        navigation.navigate('play-video',{lesson,ref:dtbase})
-      }
+    if (loading) {
+        return <Text style={{ fontSize: 20, color: 'black' }}>Loading...</Text>;
     }
-  
+
+    const checkUserProgress = (contentId:string)=>{
+      if (!userProgress) return false;
+      if (courseType !== 'text' && courseType !== 'advance') {
+        return false;
+      }
+      console.log(userProgress);
+      return userProgress.find(item=>item.lessonid === contentId);
+    };
+
+
+    const onChapterPress = (lesson: LessonInfo) => {
+        if (courseType === 'text' || courseType === 'advance') {
+            navigation.navigate('course-chapter', { lesson, ref: dtbase, courseId: id, courseDetail: courseDetail });
+        } else {
+            navigation.navigate('play-video', { lesson, ref: dtbase, courseId: id });
+        }
+    };
+
     return (
         <View style={{ marginTop: 10 }}>
-            <Text style={{ fontWeight: 'bold', fontSize: 16, color: 'black' }}>Course Content</Text>
+            <View style={{flexDirection:"row",justifyContent:"space-between"}}>
+                <Text style={{ fontWeight: 'bold', fontSize: 16, color: 'black' }}>Course Content</Text>
+                <TouchableOpacity style={{paddingBottom:10}}>
+                    <Icon name= "plussquareo" size={30} color="black" />
+                </TouchableOpacity>
+            </View>
             <FlatList
                 data={lessons}
                 renderItem={({ item, index }) => (
                     <TouchableOpacity
-                        onPress={() => onChapterPress(item)}       
+                        onPress={() => onChapterPress(item)}
                         style={{
                             display: 'flex',
                             flexDirection: 'row',
@@ -101,9 +92,9 @@ export default function CourseContent({ id , courseType}: { id: string , courseT
                             alignItems: 'center',
                             borderRadius: 5,
                         }}>
-                        {/* {checkUserProgress(item.id) ? (
-                            <Ionicons
-                                name="checkmark-circle"
+                        {checkUserProgress(item.id) ? (
+                            <Icon
+                                name="checkcircle"
                                 size={24}
                                 color={"green"}
                                 style={{ marginRight: 20 }}
@@ -118,18 +109,8 @@ export default function CourseContent({ id , courseType}: { id: string , courseT
                                 }}>
                                 {index + 1}
                             </Text>
-                        )} */}
-                        <Text
-                                style={{
-                                    fontWeight: 'bold',
-                                    fontSize: 20,
-                                    color: "gray",
-                                    marginRight: 20,
-                                }}>
-                                {index + 1}
-                        </Text>
+                        )}
                         <Text style={{ fontSize: 15, fontWeight: 'bold', color: 'black' }}>
-                            {/* {item.Topic ? item.Topic : item.name} */}
                             {item.name}
                         </Text>
                         <Icon
@@ -140,9 +121,9 @@ export default function CourseContent({ id , courseType}: { id: string , courseT
                         />
                     </TouchableOpacity>
                 )}
-                keyExtractor={(item, index) => index.toString()}
-                showsVerticalScrollIndicator={true} // Hiển thị thanh trượt dọc
-                style={{ height: '46%', marginTop: 10 }}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={true}
+                style={{ height: '36%', marginTop: 10 }}
             />
         </View>
     );

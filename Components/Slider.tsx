@@ -19,7 +19,6 @@ const Slider = () => {
             const result = await folderRef.listAll();
             const urls = await Promise.all(result.items.map(item => item.getDownloadURL()));
             setImages(urls);
-            console.log(urls);
             setLoading(false);
         };
         fetchImages();

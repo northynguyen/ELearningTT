@@ -1,12 +1,5 @@
-/* eslint-disable prettier/prettier */
 /* eslint-disable quotes */
-/* eslint-disable space-infix-ops */
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable prettier/prettier */
-/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable comma-dangle */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable prettier/prettier */
 import { View, Text } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
@@ -41,23 +34,18 @@ export default function CourseChapter() {
         setChapter(param.lesson);
         const ref = param.ref;
         const fetchData = async () => {
-            console.log(ref +'/' + param.lesson.id + '/lecture');
             const db = database().ref(ref + '/' + param.lesson.id + '/lecture');
-            console.log('././////');
             const listener = db.on('value', snapshot => {
-                console.log(snapshot.val());
                 const data = snapshot.val();
                 if (data && data[0] === null) {
                     // Nếu có, loại bỏ phần tử null đầu tiên
                     data.shift();
                 }
-                console.log(data);
                 const loadedLecture = [];
                 // Kiểm tra data không phải là null hoặc undefined trước khi lặp
                 if (data) {
 
                     for (let id in data) {
-                        console.log("them vao");
                         // Kiểm tra thêm để đảm bảo data[id] không phải là null hoặc undefined
                         if (
                             data[id] &&
@@ -65,7 +53,6 @@ export default function CourseChapter() {
                             data[id].Input &&
                             data[id].Output
                         ) {
-                            console.log("da them vao 1");
                             loadedLecture.push({
                                 id,
                                 description: data[id].Description,
@@ -77,12 +64,12 @@ export default function CourseChapter() {
                     }
                 }
                 setLecture(loadedLecture);
-                console.log(loadedLecture);
             });
             return () => db.off('value', listener); // Clean up the listener on unmount
         };
         fetchData();
     }, []);
+
 
     const onClickNext = (index: number) => {
         setRun(false);
@@ -93,31 +80,65 @@ export default function CourseChapter() {
             if (chapterRef) {
                 chapterRef.scrollToIndex({ animated: true, index: index + 1 });
             }
-        }
-        catch (e) {
-            navigation.goBack();
+        } catch (e) {
+            const courseProgressRef = database().ref('CourseProgress');
 
+            // Tạo một truy vấn để kiểm tra sự tồn tại của mục
+            courseProgressRef.orderByChild('userid')
+                .equalTo(userData.id)
+                .once('value', snapshot => {
+                    let exists = false;
+                    snapshot.forEach(childSnapshot => {
+                        const item = childSnapshot.val();
+                        if (item.courseid === param.courseId && item.lessonid === param.lesson.id) {
+                            exists = true;
+                            return true; // Dừng vòng lặp forEach
+                        }
+                    });
+                    if (!exists) {
+                        // Nếu mục chưa tồn tại, thêm mục mới
+                        courseProgressRef.push().set({
+                            userid: userData.id,
+                            courseid: param.courseId,
+                            lessonid: param.lesson.id
+                        })
+                        .then(() => {
+                            console.log('Data updated.');
+                            navigation.navigate('course-detail', { courseContentId: param.lesson.id, courseDetail: param.courseDetail }, { merge: true });
+                        })
+                        .catch(error => console.error('Error updating data:', error));
+                    } else {
+                        console.log('Course progress already exists');
+                        // Điều hướng sang màn hình course-detail nếu mục đã tồn tại
+                        navigation.navigate('course-detail', { courseContentId: param.lesson.id, courseDetail: param.courseDetail }, { merge: true });
+                    }
+                });
         }
     };
     return (
         <View style={{ padding: 20, paddingTop: 20, flex: 1 }}>
-            <TouchableOpacity style={{ paddingBottom: 10 }} onPress={() => navigation.goBack()}>
-                <Icon name= "arrowleft" size={30} color="black" />
-            </TouchableOpacity>
+            <View style={{flexDirection:"row",justifyContent:"space-between"}}>
+                <TouchableOpacity style={{ paddingBottom: 10 }} onPress={() => navigation.goBack()}>
+                    <Icon name="arrowleft" size={30} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity style={{paddingBottom:10}}>
+                    <Icon name= "setting" size={30} color="black" />
+                </TouchableOpacity>
+            </View>
             <ProgressBar progress={progress} />
             <FlatList
                 data={lecture}
                 horizontal={true}
                 pagingEnabled
-                ref={(ref)=>{
-                    chapterRef=ref;
+                ref={(ref) => {
+                    chapterRef = ref;
                 }}
-               renderItem={({ item, index }) => (
+                renderItem={({ item, index }) => (
                     <View style={{
                         width: Dimensions.get('screen').width * 0.87,
                         marginRight: 15
                     }}>
-                        <Text style={{ fontSize: 18, fontWeight: 'bold' , color: 'black'}}>{item.name}</Text>
+                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'black' }}>{item.name}</Text>
                         <Text style={{ color: 'black', textAlign: 'justify', marginTop: 5 }}>{item.description}</Text>
                         {item.input !== '' ?
                             <View>
@@ -140,7 +161,7 @@ export default function CourseChapter() {
                                 </TouchableOpacity>
                             </View> : null}
                         {run ? <View style={{ marginTop: 15 }}>
-                            <Text style={{ fontWeight: 'bold',color: 'black' }} >Output</Text>
+                            <Text style={{ fontWeight: 'bold', color: 'black' }} >Output</Text>
                             <View style={{
                                 backgroundColor: 'black',
                                 padding: 20, borderRadius: 10, marginTop: 10
@@ -150,24 +171,36 @@ export default function CourseChapter() {
                                 </Text>
                             </View>
                         </View> : null}
-                        {index + 1 !== lecture.length ? <TouchableOpacity
-                            onPress={() => onClickNext(index)}
-                            style={{
-                                backgroundColor: 'blue',
-                                padding: 10, borderRadius: 7, position: 'absolute', bottom: 0,
-                                width: '104%'
-                            }}>
-                            <Text style={{ textAlign: 'center', color: 'white' }}>Next</Text>
-                        </TouchableOpacity> :
+                        {index + 1 !== lecture.length ? 
                             <TouchableOpacity
                                 onPress={() => onClickNext(index)}
                                 style={{
-                                    backgroundColor: 'green',
-                                    padding: 10, paddingLeft: 15, borderRadius: 7, position: 'absolute', bottom: 0,
+                                    backgroundColor: 'blue',
+                                    padding: 10, borderRadius: 7, position: 'absolute', bottom: 0,
                                     width: '104%'
                                 }}>
-                                <Text style={{ textAlign: 'center', color: 'white' }}>Finish</Text>
-                            </TouchableOpacity>}
+                                <Text style={{ textAlign: 'center', color: 'white' }}>Next</Text>
+                            </TouchableOpacity> :
+                             <View style={{bottom: 0, flexDirection:"column",justifyContent:"space-between", position: 'absolute', width: '104%'}} >
+                                <TouchableOpacity
+                                    style={{
+                                        backgroundColor: '#6497b1',
+                                        paddingLeft: 15, marginBottom: 10, borderRadius: 7,
+                                        width: '100%',
+                                    }}>
+                                    <Icon name= "plussquareo" size={35} color="white" style={{ textAlign: 'center'}} />
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    onPress={() => onClickNext(index)}
+                                    style={{
+                                        backgroundColor: 'green',
+                                        padding: 10, paddingLeft: 15, borderRadius: 7 ,
+                                    }}>
+                                    <Text style={{ textAlign: 'center', color: 'white' }}>Finish</Text>
+                                </TouchableOpacity>
+
+                            </View>}
 
                     </View>
                 )}

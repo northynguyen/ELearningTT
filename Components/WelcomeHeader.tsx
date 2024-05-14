@@ -1,16 +1,41 @@
-import { View, Text, Image, StyleSheet } from 'react-native';
-import React from 'react';
+/* eslint-disable semi */
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
 import { AuthContext } from '../Context/AuthContext';
 import { useContext } from 'react';
 export default function WelcomeHeader() {
     const { userData, setUserData } = useContext(AuthContext);
+    const [showOptions, setShowOptions] = useState(false);
+    const handleToggleOptions = () => {
+        console.log('Toggle Options');
+        setShowOptions(!showOptions);
+    };
+    const handleLogout = () => {
+        console.log('Logout');
+        // Xóa dữ liệu người dùng khi đăng xuất
+        setUserData(null);
+    };
     return (
         <View style={styles.UI_userInfo}>
             <View style={styles.hello}>
                 <Text style={{ fontSize: 10, color: 'black' }}>Hello</Text>
                 <Text style={{ fontSize: 15, color: 'black' }}>{userData?.name}</Text>
             </View>
-            <Image source={{ uri: userData?.photo }} style={styles.avatar} />
+            <TouchableOpacity onPress={handleToggleOptions}>
+                <View>
+                    <Image source={{ uri: userData?.photo }} style={styles.avatar} />
+                    {showOptions && (
+                        <View style={styles.optionsContainer}>
+                            <TouchableOpacity onPress={handleLogout}>
+                                <Text style={{ fontSize: 15, color: 'black' }}>Logout</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity >
+                                <Text style={{ fontSize: 15, color: 'black' }}>Thông tin cá nhân</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                </View>
+            </TouchableOpacity>
         </View>
     )
 }
@@ -36,4 +61,13 @@ const styles = StyleSheet.create({
         marginRight: 20,
         borderRadius: 50,
     },
-});
+    optionsContainer: {
+        position: 'absolute',
+        top: 50,
+        right: 10,
+        backgroundColor: 'white',
+        padding: 10,
+        borderRadius: 5,
+        width: 100,
+    },
+})
