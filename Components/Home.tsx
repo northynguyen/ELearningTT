@@ -1,6 +1,8 @@
+/* eslint-disable jsx-quotes */
 import React, { useContext, useEffect, useState } from 'react';
 
 import {
+    ActivityIndicator,
     ActivityIndicator,
     Dimensions,
     Image,
@@ -24,29 +26,62 @@ import Slider from './Slider';
 
 import Course from './Course';
 import VideoCourses from './VideoCourses';
+import Icon from 'react-native-vector-icons/AntDesign';
+import { AuthContext } from '../Context/AuthContext';
+import { onGoogleLogout } from '../API/HandleLoginGoogle';
 const { width, height } = Dimensions.get('window');
 
-
 export default function Home(this: any): React.JSX.Element {
-    return (
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'android' ? 'padding' : 'height'}>
-            <View style={styles.container}>
-                <WelcomeHeader />
-                <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-                    <View style={styles.searchBox}>
-                        <Image source={require('../img/search-logo.png')} style={styles.icon} />
-                        <TextInput placeholder='Search' placeholderTextColor={'lightgray'} style={styles.searchText} />
-                    </View>
-                </TouchableWithoutFeedback>
-                <ScrollView showsVerticalScrollIndicator={false} style={styles.content}>
-                    {/* <Image source={require('../img/introduce.png')} style={styles.img_introduce} /> */}
-                    <Slider />
-                    <VideoCourses />
-                    <Course />
-                </ScrollView>
-            </View>
+    const { userData, setUserData } = useContext(AuthContext);
+    const [showOptions, setShowOptions] = useState(false);
+    const handleToggleOptions = () => {
+        console.log('Toggle Options');
+        setShowOptions(!showOptions);
+    };
+    const handleLogout = async () => {
+        await onGoogleLogout(setUserData);
+    };
 
-        </KeyboardAvoidingView>
+    return (
+        <ScrollView style={{ flex: 1 }}>
+            <View style={styles.UI_userInfo}>
+                <View style={styles.hello}>
+                    <Text style={{ fontSize: 10, color: 'black' }}>Hello</Text>
+                    <Text style={{ fontSize: 15, color: 'black' }}>{userData?.name}</Text>
+                </View>
+                <TouchableOpacity onPress={handleToggleOptions}>
+                    <View>
+                        <Image source={{ uri: userData?.photo }} style={styles.avatar} />
+                    </View>
+                </TouchableOpacity>
+            </View>
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'android' ? 'padding' : 'height'}>
+                <View style={styles.container}>
+                    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+                        <View style={styles.searchBox}>
+                            <Icon name='search1' size={30} color={'black'} style={styles.icon} />
+                            <TextInput placeholder='Search' placeholderTextColor={'lightgray'} style={styles.searchText} />
+                        </View>
+                    </TouchableWithoutFeedback>
+                    <ScrollView showsVerticalScrollIndicator={false} style={styles.content}>
+                        <Slider />
+                        <VideoCourses />
+                        <Course />
+                    </ScrollView>
+                </View>
+            </KeyboardAvoidingView>
+            {showOptions && (
+                <View style={styles.optionsContainer}>
+                    <TouchableOpacity onPress={handleLogout}>
+                        <Text style={{ fontSize: 15, color: 'black' }}>Logout</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity >
+                        <Text style={{ fontSize: 15, color: 'black' }}>Thông tin cá nhân</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+        </ScrollView>
+
     );
 }
 
@@ -90,6 +125,7 @@ const styles = StyleSheet.create({
         color: 'black',
     },
 
+
     img_courses: {
         height: 112.5,
         width: 200,
@@ -98,6 +134,34 @@ const styles = StyleSheet.create({
     },
     scrollCourses: {
     },
+
+    UI_userInfo: {
+        marginTop: 20,
+        height: 70,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    hello: {
+        paddingLeft: 20,
+    },
+    avatar: {
+        width: 50,
+        height: 50,
+        marginRight: 20,
+        borderRadius: 50,
+    },
+    optionsContainer: {
+        position: 'absolute',
+        top: 80,
+        right: 10,
+        backgroundColor: 'grey',
+        padding: 10,
+        borderRadius: 5,
+        width: 130,
+        height: 130,
+    },
 });
+
 
 

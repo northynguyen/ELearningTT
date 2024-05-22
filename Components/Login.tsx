@@ -1,10 +1,12 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { onGoogleButtonPress } from '../API/HandleLoginGoogle';
 import database from '@react-native-firebase/database';
+import database from '@react-native-firebase/database';
 import {
+  ActivityIndicator,
   ActivityIndicator,
   Dimensions,
   Image,
@@ -33,19 +35,26 @@ GoogleSignin.configure({
   iosClientId: '1065593939332-27sqkgpmi0hb6ssaqip5fm0uj6ocbjkm.apps.googleusercontent.com',
 });
 
+webClientId: '1065593939332-258cvhe9b7e9ukh8mtferjt73avhtkr4.apps.googleusercontent.com',
+  iosClientId: '1065593939332-27sqkgpmi0hb6ssaqip5fm0uj6ocbjkm.apps.googleusercontent.com',
+});
+
 
 export default function Login(this: any): React.JSX.Element {
-  const { userData, setUserData } = useContext(AuthContext)
+  const { userData, setUserData } = useContext(AuthContext);
   const [loading, setLoading] = React.useState(false);
+  const [checkUser, setCheckUser] = React.useState(false);
   const handleLogin = async () => {
     await onGoogleButtonPress(setUserData);
   };
+
+
   return (
     <View style={styles.container}>
       <Image
         source={require('../img/bg_login.png')}
         style={styles.header}
-        resizeMode='contain' />
+        resizeMode="contain" />
       <View style={styles.footer}>
         <Text style={styles.text_welcome}>Welcome to Education App</Text>
         <Text style={styles.text_login}>Login/Sign up</Text>
@@ -65,8 +74,7 @@ export default function Login(this: any): React.JSX.Element {
           <ActivityIndicator
             size={'large'}
             color={'grey'}
-          >
-          </ActivityIndicator>
+          />
         </View>
       )}
     </View>
@@ -81,12 +89,12 @@ const styles = StyleSheet.create({
   header: {
     height: '30%',
     width: '100%',
-    position: 'relative'
+    position: 'relative',
   },
   footer:
   {
     position: 'absolute',
-    top: '27%',  //cách top 27% 
+    top: '27%',  //cách top 27%
     height: '73%',//100 - 27 = 73 sẽ là phần còn lại của màn hình
     width: '100%',
     alignItems: 'center',
@@ -135,5 +143,14 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+},
+  loadingIndicator: {
+  position: 'absolute',
+  alignSelf: 'center',
+  justifyContent: 'center',
+  backgroundColor: 'transparent',
+  width: '100%',
+  height: '100%',
+},
 });
 
