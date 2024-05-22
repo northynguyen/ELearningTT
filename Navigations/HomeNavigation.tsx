@@ -17,10 +17,10 @@ export default function HomeNavigation() {
             <Stack.Screen name="home" component={Home} />
             <Stack.Screen name="course-detail" component={CoursesDetails} />
             <Stack.Screen name="course-chapter" component={CourseChapter} />
-            <Stack.Screen name="play-video" component ={PlayVideo} />
-            <Stack.Screen name="insert-video-course" component ={VideoCoursesInsert} />
-            <Stack.Screen name="insert-course" component ={CourseInsert} />
-            <Stack.Screen name="insert-course-content" component ={CourseContentInsert} />
+            <Stack.Screen name="play-video" component={PlayVideo} />
+            <Stack.Screen name="insert-video-course" component={VideoCoursesInsert} />
+            <Stack.Screen name="insert-course" component={CourseInsert} />
+            <Stack.Screen name="insert-course-content" component={CourseContentInsert} />
         </Stack.Navigator>
     );
 }

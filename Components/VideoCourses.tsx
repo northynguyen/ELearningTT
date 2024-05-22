@@ -90,7 +90,7 @@ const VideoCourses = () => {
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Video Courses</Text>
         {isUserAdmin && (
-          <TouchableOpacity onPress={() =>onPressInsert()} style={{ paddingBottom: 10 }} >
+          <TouchableOpacity onPress={() => onPressInsert()} style={{ paddingBottom: 10 }} >
             <Icon name="plussquareo" size={30} color="black" />
           </TouchableOpacity>
         )}

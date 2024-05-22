@@ -81,29 +81,31 @@ export default function CoursesDetails() {
         }
     }
     return (
-        <View style={{padding:20,paddingTop:20,flex:1}}>
+        <View style={{ padding: 20, paddingTop: 20, flex: 1 }}>
 
-            <View style={{flexDirection:"row",justifyContent:"space-between"}}>
-                <TouchableOpacity style={{paddingBottom:10}} onPress={()=>navigation.goBack() }>
-                    <Icon name= "arrowleft" size={30} color="black" />
+            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                <TouchableOpacity style={{ paddingBottom: 10 }} onPress={() => navigation.goBack()}>
+                    <Icon name="arrowleft" size={30} color="black" />
                 </TouchableOpacity>
                 {isUserAdmin && (
-                    <TouchableOpacity style={{paddingBottom:10}} onPress={editCourse}>
-                        <Icon name= "setting" size={30} color="black" />
+                    <TouchableOpacity style={{ paddingBottom: 10 }} onPress={editCourse}>
+                        <Icon name="setting" size={30} color="black" />
                     </TouchableOpacity>
                 )}
             </View>
             <ScrollView>
                 <View>
-                    <Text style={{fontSize:20,fontWeight:'bold',color:"black"}}>{course.name}</Text>
-                    <Text style={{color : "gray"}}>By Tubeguruji</Text>
-                    <Image source={{uri: course.image || fallbackImage}}
-                        style={{height:150,marginTop:10,borderRadius:10}} />
-                    <Text style={{marginTop:10,
-                    fontSize:16, fontWeight:'bold', color:"black"}}>About Course
+                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: "black" }}>{course.name}</Text>
+                    <Text style={{ color: "gray" }}>By Tubeguruji</Text>
+                    <Image source={{ uri: course.image || fallbackImage }}
+                        style={{ height: 150, marginTop: 10, borderRadius: 10 }} />
+                    <Text style={{
+                        marginTop: 10,
+                        fontSize: 16, fontWeight: 'bold', color: "black"
+                    }}>About Course
                     </Text>
                     <Text
-                        style={{color:"gray",textAlign:"justify"}}>{course.description}
+                        style={{ color: "gray", textAlign: "justify" }}>{course.description}
                     </Text>
                 </View>
 

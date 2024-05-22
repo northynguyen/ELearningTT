@@ -62,6 +62,11 @@ export default function App() {
                         <HomeNavigation />
                     </NavigationContainer>
                     : <Login />}
+                {userData ?
+                    <NavigationContainer>
+                        <HomeNavigation />
+                    </NavigationContainer>
+                    : <Login />}
             </AuthContext.Provider>
         </View>
     );
