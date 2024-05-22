@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable prettier/prettier */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { FlatList, Image, Dimensions, View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import storage from '@react-native-firebase/storage';
@@ -30,7 +29,7 @@ const Slider = () => {
                 currentIndex = (currentIndex + 1) % images.length; // Update the index
                 flatListRef.current.scrollToIndex({
                     index: currentIndex,
-                    animated: true
+                    animated: true,
                 });
             }
         }, 3000);

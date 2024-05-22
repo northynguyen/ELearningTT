@@ -1,6 +1,6 @@
 /* eslint-disable quotes */
 /* eslint-disable comma-dangle */
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import { AuthContext } from '../Context/AuthContext';
 import ProgressBar from './ProgressBar';
 import database from '@react-native-firebase/database';
 import Icon from 'react-native-vector-icons/AntDesign';
+import { checkUserRole } from '../Context/checkUser';
 type lectureinfo = {
     id: string;
     name: string;
@@ -27,9 +28,10 @@ export default function CourseChapter() {
     const { userData, setUserData } = useContext(AuthContext);
     let chapterRef: FlatList<never> | null;
     const navigation = useNavigation();
+    const [isUserAdmin, setIsUserAdmin] = useState(false);
+    const [showOptions, setShowOptions] = useState(false);
 
     useEffect(() => {
-
         setProgress(0);
         setChapter(param.lesson);
         const ref = param.ref;
@@ -70,7 +72,9 @@ export default function CourseChapter() {
         fetchData();
     }, []);
 
-
+    const handleToggleOptions = () => {
+        setShowOptions(!showOptions);
+    };
     const onClickNext = (index: number) => {
         setRun(false);
         var a = index + 1;
@@ -115,15 +119,26 @@ export default function CourseChapter() {
                 });
         }
     };
+
+    const fetchUserRole = async () => {
+        const role = await checkUserRole(userData);
+        setIsUserAdmin(role);
+    };
+
+    useEffect(() => {
+        fetchUserRole();
+    }, [userData]);
     return (
         <View style={{ padding: 20, paddingTop: 20, flex: 1 }}>
             <View style={{flexDirection:"row",justifyContent:"space-between"}}>
                 <TouchableOpacity style={{ paddingBottom: 10 }} onPress={() => navigation.goBack()}>
                     <Icon name="arrowleft" size={30} color="black" />
                 </TouchableOpacity>
-                <TouchableOpacity style={{paddingBottom:10}}>
-                    <Icon name= "setting" size={30} color="black" />
-                </TouchableOpacity>
+                {isUserAdmin && (
+                    <TouchableOpacity style={{paddingBottom:10}} onPress={handleToggleOptions}>
+                        <Icon name= "setting" size={30} color="black" />
+                    </TouchableOpacity>
+                )}
             </View>
             <ProgressBar progress={progress} />
             <FlatList
@@ -182,14 +197,6 @@ export default function CourseChapter() {
                                 <Text style={{ textAlign: 'center', color: 'white' }}>Next</Text>
                             </TouchableOpacity> :
                              <View style={{bottom: 0, flexDirection:"column",justifyContent:"space-between", position: 'absolute', width: '104%'}} >
-                                <TouchableOpacity
-                                    style={{
-                                        backgroundColor: '#6497b1',
-                                        paddingLeft: 15, marginBottom: 10, borderRadius: 7,
-                                        width: '100%',
-                                    }}>
-                                    <Icon name= "plussquareo" size={35} color="white" style={{ textAlign: 'center'}} />
-                                </TouchableOpacity>
 
                                 <TouchableOpacity
                                     onPress={() => onClickNext(index)}
@@ -205,6 +212,33 @@ export default function CourseChapter() {
                     </View>
                 )}
             />
+            {showOptions && (
+                <View style={styles.optionsContainer}>
+                    <TouchableOpacity >
+                        <Text style={{ fontSize: 15, color: 'black' }}>Thêm </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity >
+                        <Text style={{ fontSize: 15, color: 'black' }}>Thông tin cá nhân</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1
+    },
+
+    optionsContainer: {
+        position: 'absolute',
+        top: 80,
+        right: 10,
+        backgroundColor: 'grey',
+        padding: 10,
+        borderRadius: 5,
+        width: 130,
+        height: 130,
+    },
+});

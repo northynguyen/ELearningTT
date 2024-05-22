@@ -28,7 +28,6 @@ import VideoCourses from './VideoCourses';
 import Icon from 'react-native-vector-icons/AntDesign';
 import { AuthContext } from '../Context/AuthContext';
 import { onGoogleLogout } from '../API/HandleLoginGoogle';
-
 const { width, height } = Dimensions.get('window');
 
 export default function Home(this: any): React.JSX.Element {
@@ -64,7 +63,6 @@ export default function Home(this: any): React.JSX.Element {
                         </View>
                     </TouchableWithoutFeedback>
                     <ScrollView showsVerticalScrollIndicator={false} style={styles.content}>
-                        {/* <Image source={require('../img/introduce.png')} style={styles.img_introduce} /> */}
                         <Slider />
                         <VideoCourses />
                         <Course />
@@ -72,15 +70,15 @@ export default function Home(this: any): React.JSX.Element {
                 </View>
             </KeyboardAvoidingView>
             {showOptions && (
-                            <View style={styles.optionsContainer}>
-                                <TouchableOpacity onPress={handleLogout}>
-                                    <Text style={{ fontSize: 15, color: 'black' }}>Logout</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity >
-                                    <Text style={{ fontSize: 15, color: 'black' }}>Thông tin cá nhân</Text>
-                                </TouchableOpacity>
-                            </View>
-                        )}
+                <View style={styles.optionsContainer}>
+                    <TouchableOpacity onPress={handleLogout}>
+                        <Text style={{ fontSize: 15, color: 'black' }}>Logout</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity >
+                        <Text style={{ fontSize: 15, color: 'black' }}>Thông tin cá nhân</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
         </ScrollView>
 
     );

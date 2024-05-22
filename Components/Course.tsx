@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable quotes */
 import {
   View,
@@ -9,12 +10,13 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import database from '@react-native-firebase/database';
-import Loading from './Loading';
 import {useNavigation} from '@react-navigation/native';
-import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/AntDesign';
+import { checkUserRole } from '../Context/checkUser';
+import { AuthContext } from '../Context/AuthContext';
+
 const width = Dimensions.get('window').width;
 
 type CourseInfo = {
@@ -30,12 +32,14 @@ export default function Course() {
   const [courses, setCourses] = useState<CourseInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  const { userData } = useContext(AuthContext);
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
       const db = database().ref('/CourseList');
-      const listener = db.on('value', snapshot => {
+      db.on('value', snapshot => {
         const data = snapshot.val();
         const loadedCourses = [];
         // Kiểm tra data không phải là null hoặc undefined trước khi lặp
@@ -65,27 +69,45 @@ export default function Course() {
         setCourses(loadedCourses);
         setLoading(false);
       });
-      return () => db.off('value', listener); // Clean up the listener on unmount
+
+      return () => db.off('value'); // Clean up the listener on unmount
     };
+
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      const role = await checkUserRole(userData);
+      setIsUserAdmin(role);
+    };
+
+    fetchUserRole();
+  }, [userData]);
+
   if (loading) {
     return <Text style={{fontSize: 20, color: 'black'}}>Loading...</Text>;
   }
+
   const onPressCourse = (course: CourseInfo) => {
     navigation.navigate('course-detail', {courseDetail: course});
   };
 
+  const onPressAddCourse = () => {
+    navigation.navigate('insert-course');
+  };
   return (
     <View style={styles.container}>
       <View style={{flexDirection:"row",justifyContent:"space-between"}}>
         <Text style={styles.headerCourses}>Basic Popular Courses</Text>
-        <TouchableOpacity style={{paddingBottom:10}}>
+        {isUserAdmin ? (
+          <TouchableOpacity style={{paddingBottom:10}} onPress={onPressAddCourse}>
             <Icon name= "plussquareo" size={30} color="black" />
-        </TouchableOpacity>
+          </TouchableOpacity>) : null
+        }
       </View>
       <FlatList
-        data={courses.filter(item => item.type === 'text')}
+        data={courses.filter(item => item.type === 'basic')}
         keyExtractor={item => item.id}
         horizontal
         renderItem={({item}) => (
@@ -104,9 +126,11 @@ export default function Course() {
 
       <View style={{flexDirection:"row",justifyContent:"space-between"}}>
         <Text style={styles.headerCourses}>Advance Popular Courses</Text>
-        <TouchableOpacity style={{paddingBottom:10}}>
+        {isUserAdmin ? (
+          <TouchableOpacity style={{paddingBottom:10}} onPress={onPressAddCourse}>
             <Icon name= "plussquareo" size={30} color="black" />
-        </TouchableOpacity>
+          </TouchableOpacity>) : null
+        }
       </View>
       <FlatList
         data={courses.filter(item => item.type === 'advance')}
@@ -128,6 +152,7 @@ export default function Course() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -163,8 +188,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },
-
-  scrollCourses: {},
   CoursesInfo: {
     marginLeft: 10,
     width: '100%',

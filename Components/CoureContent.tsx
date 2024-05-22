@@ -1,9 +1,11 @@
  /* eslint-disable quotes */
 import { View, Text, ScrollView, FlatList, TouchableOpacity } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import database from '@react-native-firebase/database';
 import Icon from 'react-native-vector-icons/AntDesign';
+import { checkUserRole } from '../Context/checkUser';
+import { AuthContext } from '../Context/AuthContext';
 
 type LessonInfo = {
     id: string;
@@ -15,12 +17,15 @@ export default function CourseContent({ id, courseType, userProgress, courseDeta
     const [loading, setLoading] = useState(true);
     const [lessons, setLessons] = useState<LessonInfo[]>([]);
     const [dtbase, setDatabase] = useState('');
+    const { userData } = useContext(AuthContext);
+    const [isUserAdmin, setIsUserAdmin] = useState(false);
+    const [showOptions, setShowOptions] = useState(false);
 
     useEffect(() => {
         setLoading(true);
         const fetchData = async () => {
             let db;
-            if (courseType === 'text' || courseType === 'advance') {
+            if (courseType === 'basic' || courseType === 'advance') {
                 db = database().ref(`/CourseList/${id}/Lesson`);
                 setDatabase(`/CourseList/${id}/Lesson`);
             } else {
@@ -48,13 +53,10 @@ export default function CourseContent({ id, courseType, userProgress, courseDeta
         fetchData();
     }, [id, courseType]);
 
-    if (loading) {
-        return <Text style={{ fontSize: 20, color: 'black' }}>Loading...</Text>;
-    }
 
     const checkUserProgress = (contentId:string)=>{
       if (!userProgress) return false;
-      if (courseType !== 'text' && courseType !== 'advance') {
+      if (courseType !== 'basic' && courseType !== 'advance') {
         return false;
       }
       console.log(userProgress);
@@ -63,20 +65,32 @@ export default function CourseContent({ id, courseType, userProgress, courseDeta
 
 
     const onChapterPress = (lesson: LessonInfo) => {
-        if (courseType === 'text' || courseType === 'advance') {
+        if (courseType === 'basic' || courseType === 'advance') {
             navigation.navigate('course-chapter', { lesson, ref: dtbase, courseId: id, courseDetail: courseDetail });
         } else {
             navigation.navigate('play-video', { lesson, ref: dtbase, courseId: id });
         }
     };
 
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            const role = await checkUserRole(userData);
+            setIsUserAdmin(role);
+        };
+        fetchUserRole();
+    }, [userData]);
+
+    const onPressAddCourse = () => {
+        navigation.navigate('insert-course-content', { courseType: courseType });
+      };
+
     return (
         <View style={{ marginTop: 10 }}>
             <View style={{flexDirection:"row",justifyContent:"space-between"}}>
                 <Text style={{ fontWeight: 'bold', fontSize: 16, color: 'black' }}>Course Content</Text>
-                <TouchableOpacity style={{paddingBottom:10}}>
+                {isUserAdmin && (<TouchableOpacity style={{paddingBottom:10}} onPress={() => onPressAddCourse()}>
                     <Icon name= "plussquareo" size={30} color="black" />
-                </TouchableOpacity>
+                </TouchableOpacity>)}
             </View>
             <FlatList
                 data={lessons}
@@ -122,8 +136,7 @@ export default function CourseContent({ id, courseType, userProgress, courseDeta
                     </TouchableOpacity>
                 )}
                 keyExtractor={(item) => item.id}
-                showsVerticalScrollIndicator={true}
-                style={{ height: '36%', marginTop: 10 }}
+                style={{ height: '100%', marginTop: 10 }}
             />
         </View>
     );

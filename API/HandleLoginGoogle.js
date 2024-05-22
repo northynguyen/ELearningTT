@@ -5,7 +5,6 @@ export const onGoogleButtonPress = async (setUserData) => {
     try {
         await GoogleSignin.hasPlayServices();
         const userInfo = await GoogleSignin.signIn();
-        console.log(userInfo.user);
         setUserData(userInfo.user);
         // Lưu userInfo vào state hoặc context để sử dụng sau này
       } catch (error) {
