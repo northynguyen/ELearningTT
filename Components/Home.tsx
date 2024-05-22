@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import {
     ActivityIndicator,
-    ActivityIndicator,
     Dimensions,
     Image,
     Keyboard,
