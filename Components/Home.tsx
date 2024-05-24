@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import {
     ActivityIndicator,
+    ActivityIndicator,
     Dimensions,
     Image,
     Keyboard,
@@ -124,6 +125,7 @@ const styles = StyleSheet.create({
         color: 'black',
     },
 
+
     img_courses: {
         height: 112.5,
         width: 200,
@@ -160,5 +162,6 @@ const styles = StyleSheet.create({
         height: 130,
     },
 });
+
 
 

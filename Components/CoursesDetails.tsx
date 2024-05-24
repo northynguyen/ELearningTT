@@ -105,6 +105,8 @@ export default function CoursesDetails() {
                 {isUserAdmin && (
                     <TouchableOpacity style={{ paddingBottom: 10 }} onPress={editCourse}>
                         <Icon name="setting" size={30} color="black" />
+                    <TouchableOpacity style={{ paddingBottom: 10 }} onPress={editCourse}>
+                        <Icon name="setting" size={30} color="black" />
                     </TouchableOpacity>
                 )}
             </View>

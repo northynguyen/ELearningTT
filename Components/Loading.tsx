@@ -25,5 +25,5 @@ const styles = StyleSheet.create({
         height: '100%',
 
     },
-// eslint-disable-next-line eol-last
+    // eslint-disable-next-line eol-last
 })

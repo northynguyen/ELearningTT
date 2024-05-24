@@ -10,9 +10,9 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import database from '@react-native-firebase/database';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import { checkUserRole } from '../Context/checkUser';
 import { AuthContext } from '../Context/AuthContext';
@@ -85,11 +85,11 @@ export default function Course() {
   }, [userData]);
 
   if (loading) {
-    return <Text style={{fontSize: 20, color: 'black'}}>Loading...</Text>;
+    return <Text style={{ fontSize: 20, color: 'black' }}>Loading...</Text>;
   }
 
   const onPressCourse = (course: CourseInfo) => {
-    navigation.navigate('course-detail', {courseDetail: course});
+    navigation.navigate('course-detail', { courseDetail: course });
   };
 
   const onPressAddCourse = () => {
@@ -97,11 +97,11 @@ export default function Course() {
   };
   return (
     <View style={styles.container}>
-      <View style={{flexDirection:"row",justifyContent:"space-between"}}>
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <Text style={styles.headerCourses}>Basic Popular Courses</Text>
         {isUserAdmin ? (
-          <TouchableOpacity style={{paddingBottom:10}} onPress={onPressAddCourse}>
-            <Icon name= "plussquareo" size={30} color="black" />
+          <TouchableOpacity style={{ paddingBottom: 10 }} onPress={onPressAddCourse}>
+            <Icon name="plussquareo" size={30} color="black" />
           </TouchableOpacity>) : null
         }
       </View>
@@ -109,11 +109,11 @@ export default function Course() {
         data={courses.filter(item => item.type === 'basic')}
         keyExtractor={item => item.id}
         horizontal
-        renderItem={({item}) => (
+        renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.containerCourses}
             onPress={() => onPressCourse(item)}>
-            <Image source={{uri: item.image}} style={styles.img_courses} />
+            <Image source={{ uri: item.image }} style={styles.img_courses} />
             <View style={styles.CoursesInfo}>
               <Text style={styles.textName}>{item.name}</Text>
               <Text style={styles.textLesson}>Lessons: {item.lessonCount}</Text>
@@ -123,11 +123,11 @@ export default function Course() {
         showsHorizontalScrollIndicator={false}
       />
 
-      <View style={{flexDirection:"row",justifyContent:"space-between"}}>
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <Text style={styles.headerCourses}>Advance Popular Courses</Text>
         {isUserAdmin ? (
-          <TouchableOpacity style={{paddingBottom:10}} onPress={onPressAddCourse}>
-            <Icon name= "plussquareo" size={30} color="black" />
+          <TouchableOpacity style={{ paddingBottom: 10 }} onPress={onPressAddCourse}>
+            <Icon name="plussquareo" size={30} color="black" />
           </TouchableOpacity>) : null
         }
       </View>
@@ -135,11 +135,11 @@ export default function Course() {
         data={courses.filter(item => item.type === 'advance')}
         keyExtractor={item => item.id}
         horizontal
-        renderItem={({item}) => (
+        renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.containerCourses}
             onPress={() => onPressCourse(item)}>
-            <Image source={{uri: item.image}} style={styles.img_courses} />
+            <Image source={{ uri: item.image }} style={styles.img_courses} />
             <View style={styles.CoursesInfo}>
               <Text style={styles.textName}>{item.name}</Text>
               <Text style={styles.textLesson}>Lessons: {item.lessonCount}</Text>
