@@ -11,6 +11,8 @@ import { AuthContext } from '../Context/AuthContext';
 import ProgressBar from './ProgressBar';
 import database from '@react-native-firebase/database';
 import Icon from 'react-native-vector-icons/AntDesign';
+import Icon1 from 'react-native-vector-icons/FontAwesome5';
+
 import { checkUserRole } from '../Context/checkUser';
 type lectureinfo = {
     id: string;
@@ -29,7 +31,7 @@ export default function CourseChapter() {
     let chapterRef: FlatList<never> | null;
     const navigation = useNavigation();
     const [isUserAdmin, setIsUserAdmin] = useState(false);
-    const [showOptions, setShowOptions] = useState(false);
+    const [dtbase, setDatabase] = useState('');
 
     useEffect(() => {
         setProgress(0);
@@ -37,6 +39,7 @@ export default function CourseChapter() {
         const ref = param.ref;
         const fetchData = async () => {
             const db = database().ref(ref + '/' + param.lesson.id + '/lecture');
+            setDatabase(ref + '/' + param.lesson.id + '/lecture');
             const listener = db.on('value', snapshot => {
                 const data = snapshot.val();
                 if (data && data[0] === null) {
@@ -72,9 +75,6 @@ export default function CourseChapter() {
         fetchData();
     }, []);
 
-    const handleToggleOptions = () => {
-        setShowOptions(!showOptions);
-    };
     const onClickNext = (index: number) => {
         setRun(false);
         var a = index + 1;
@@ -128,15 +128,23 @@ export default function CourseChapter() {
     useEffect(() => {
         fetchUserRole();
     }, [userData]);
+
+    const editCourse = () => {
+        navigation.navigate('insert-course-chapter', { ref: dtbase });
+    };
+
+    const editchapter = (chapterInfo: lectureinfo) => {
+        navigation.navigate('insert-course-chapter', { ref: dtbase, chapterInfo: chapterInfo });
+    }
     return (
         <View style={{ padding: 20, paddingTop: 20, flex: 1 }}>
             <View style={{flexDirection:"row",justifyContent:"space-between"}}>
-                <TouchableOpacity style={{ paddingBottom: 10 }} onPress={() => navigation.goBack()}>
+                <TouchableOpacity style={{ paddingBottom: 10}} onPress={() => navigation.goBack()}>
                     <Icon name="arrowleft" size={30} color="black" />
                 </TouchableOpacity>
                 {isUserAdmin && (
-                    <TouchableOpacity style={{paddingBottom:10}} onPress={handleToggleOptions}>
-                        <Icon name= "setting" size={30} color="black" />
+                    <TouchableOpacity style={{paddingBottom:10, paddingRight: 15 }} >
+                        <Icon name= "plussquareo" size={30} color="black" onPress={editCourse} />
                     </TouchableOpacity>
                 )}
             </View>
@@ -153,7 +161,12 @@ export default function CourseChapter() {
                         width: Dimensions.get('screen').width * 0.87,
                         marginRight: 15
                     }}>
-                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'black' }}>{item.name}</Text>
+                        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'black' }}>{item.name}</Text>
+                            <TouchableOpacity style={{paddingBottom:10}} >
+                                <Icon1 name= "edit" size={25} color="black" onPress={() => editchapter(item) } />
+                            </TouchableOpacity>
+                        </View>
                         <Text style={{ color: 'black', textAlign: 'justify', marginTop: 5 }}>{item.description}</Text>
                         {item.input !== '' ?
                             <View>
@@ -212,16 +225,6 @@ export default function CourseChapter() {
                     </View>
                 )}
             />
-            {showOptions && (
-                <View style={styles.optionsContainer}>
-                    <TouchableOpacity >
-                        <Text style={{ fontSize: 15, color: 'black' }}>Thêm </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity >
-                        <Text style={{ fontSize: 15, color: 'black' }}>Thông tin cá nhân</Text>
-                    </TouchableOpacity>
-                </View>
-            )}
         </View>
     );
 }
@@ -229,16 +232,5 @@ export default function CourseChapter() {
 const styles = StyleSheet.create({
     container: {
         flex: 1
-    },
-
-    optionsContainer: {
-        position: 'absolute',
-        top: 80,
-        right: 10,
-        backgroundColor: 'grey',
-        padding: 10,
-        borderRadius: 5,
-        width: 130,
-        height: 130,
     },
 });

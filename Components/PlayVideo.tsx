@@ -23,10 +23,12 @@ export default function PlayVideo(ref: string) {
     const [playing, setPlaying] = useState(false);
     const { userData } = useContext(AuthContext);
     const [isUserAdmin, setIsUserAdmin] = useState(false);
+    const [dtbase, setDatabase] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
             ref = param.ref;
+            setDatabase(ref);
             const db = database().ref(ref + '/' + param.lesson.id);
             const listener = db.on('value', snapshot => {
 
@@ -75,8 +77,9 @@ export default function PlayVideo(ref: string) {
     const customIndicatorStyle = { color: 'black' }; // Define custom color here
 
     const editVideo = () => {
-        navigation.navigate('insert-course-content', {videoInfo: videoInfo[0]});
-    }
+        navigation.navigate('insert-course-content', {videoInfo: videoInfo[0], ref: dtbase});
+    };
+
     return (
         <View style={{ padding: 20, marginTop: 0 }}>
             <View style={{flexDirection:"row",justifyContent:"space-between"}}>
@@ -90,7 +93,7 @@ export default function PlayVideo(ref: string) {
                 )}
             </View>
             {videoInfo ?
-                <View>
+                <ScrollView>
                     <Text style={{ marginBottom: 10, fontSize: 22, fontWeight: 'bold', color: 'black' }}>{videoInfo[0]?.name}</Text>
                     <YoutubeIframe
 
@@ -103,14 +106,14 @@ export default function PlayVideo(ref: string) {
                     <Text style={{ fontWeight: 'bold', marginBottom: 10, fontSize: 16, color: 'black' }}>Description</Text>
 
 
-                    <ScrollView
-                        style={{ height: '50%' }}
+                    <View
+                        style={{ height: '100%' }}
                     >
                         <Text style={{ lineHeight: 20, marginBottom: 10, fontSize: 16, color: 'black', textAlign: 'justify' }}>
                             {videoInfo[0]?.description}
                         </Text>
-                    </ScrollView>
-                </View> : null}
+                    </View>
+                </ScrollView> : null}
         </View>
     );
 }

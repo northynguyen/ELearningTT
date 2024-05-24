@@ -19,7 +19,6 @@ export default function CourseContent({ id, courseType, userProgress, courseDeta
     const [dtbase, setDatabase] = useState('');
     const { userData } = useContext(AuthContext);
     const [isUserAdmin, setIsUserAdmin] = useState(false);
-    const [showOptions, setShowOptions] = useState(false);
 
     useEffect(() => {
         setLoading(true);
@@ -81,11 +80,11 @@ export default function CourseContent({ id, courseType, userProgress, courseDeta
     }, [userData]);
 
     const onPressAddCourse = () => {
-        navigation.navigate('insert-course-content', { courseType: courseType });
+        navigation.navigate('insert-course-content', { courseType: courseType, ref: dtbase,courseId: id, courseDetail: courseDetail });
       };
 
     return (
-        <View style={{ marginTop: 10 }}>
+        <View style={{ marginTop: 10 ,flex:1, marginBottom:10}}>
             <View style={{flexDirection:"row",justifyContent:"space-between"}}>
                 <Text style={{ fontWeight: 'bold', fontSize: 16, color: 'black' }}>Course Content</Text>
                 {isUserAdmin && (<TouchableOpacity style={{paddingBottom:10}} onPress={() => onPressAddCourse()}>

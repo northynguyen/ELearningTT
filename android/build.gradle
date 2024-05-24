@@ -21,6 +21,11 @@ buildscript {
     project.ext.react=(':react-native-vector-icons')
 
 }
-
+buildscript {
+  dependencies {
+    // ... other dependencies
+    classpath 'com.google.gms:google-services:4.3.3'
+  }
+}
 
 apply plugin: "com.facebook.react.rootproject"

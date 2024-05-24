@@ -8,6 +8,7 @@ import PlayVideo from '../Components/PlayVideo';
 import VideoCoursesInsert from '../Components/VideoCourseInsert';
 import CourseInsert from '../Components/CourseInsert';
 import CourseContentInsert from '../Components/CourseContentInsert';
+import CourseChapterInsert from '../Components/CourseChapterInsert';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +22,7 @@ export default function HomeNavigation() {
             <Stack.Screen name="insert-video-course" component ={VideoCoursesInsert} />
             <Stack.Screen name="insert-course" component ={CourseInsert} />
             <Stack.Screen name="insert-course-content" component ={CourseContentInsert} />
+            <Stack.Screen name="insert-course-chapter" component ={CourseChapterInsert} />
         </Stack.Navigator>
     );
 }

@@ -51,8 +51,7 @@ export default function Course() {
               data[id].Image &&
               data[id].Description &&
               data[id].Name &&
-              data[id].Type &&
-              data[id].Lesson
+              data[id].Type 
             ) {
               const lessonCount = Object.keys(data[id].Lesson).length;
               loadedCourses.push({
