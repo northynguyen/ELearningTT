@@ -28,19 +28,49 @@ import VideoCourses from './VideoCourses';
 import Icon from 'react-native-vector-icons/AntDesign';
 import { AuthContext } from '../Context/AuthContext';
 import { onGoogleLogout } from '../API/HandleLoginGoogle';
+import { useNavigation } from '@react-navigation/native';
+import { firebase } from '@react-native-firebase/database';
 const { width, height } = Dimensions.get('window');
 
 export default function Home(this: any): React.JSX.Element {
     const { userData, setUserData } = useContext(AuthContext);
     const [showOptions, setShowOptions] = useState(false);
+    const navigation = useNavigation();
     const handleToggleOptions = () => {
-        console.log('Toggle Options');
         setShowOptions(!showOptions);
     };
     const handleLogout = async () => {
         await onGoogleLogout(setUserData);
     };
+    const handleProfile = () => {
+        navigation.navigate('profile', { userData: userData });
+    };
+    const handleMessage = () => {
+        navigation.navigate('chatrooms');
+    };
 
+    const importUserData = async () => {
+        try {
+            const db = firebase.database().ref('/User');
+            const snapshot = await db.orderByChild('email').equalTo(userData.email).once('value');
+
+            if (snapshot.exists()) {
+                console.log('User already exists:', userData.email);
+                snapshot.forEach((childSnapshot) => {
+                    const existingUserData = childSnapshot.val();
+                    const userId = childSnapshot.key;
+                    setUserData({ ...existingUserData, id: userId });
+                    return true; // Exit the forEach loop
+                });
+            }
+        } catch (error) {
+            console.error('Error updating data:', error);
+        }
+    };
+
+    useEffect(() => {
+        importUserData();
+    }, []);
     return (
         <ScrollView style={{ flex: 1 }}>
             <View style={styles.UI_userInfo}>
@@ -71,11 +101,30 @@ export default function Home(this: any): React.JSX.Element {
             </KeyboardAvoidingView>
             {showOptions && (
                 <View style={styles.optionsContainer}>
-                    <TouchableOpacity onPress={handleLogout}>
-                        <Text style={{ fontSize: 15, color: 'black' }}>Logout</Text>
+                    <TouchableOpacity onPress={handleProfile}>
+                        <View style={styles.optionsContainer_cnt}>
+                            <Image
+                                source={require('../img/user-icon.png')}
+                                resizeMode="contain" />
+                            <Text style={styles.optionsContainer_Text}>Thông tin cá nhân</Text>
+                        </View>
                     </TouchableOpacity>
-                    <TouchableOpacity >
-                        <Text style={{ fontSize: 15, color: 'black' }}>Thông tin cá nhân</Text>
+                    <TouchableOpacity onPress={handleMessage}>
+                        <View style={styles.optionsContainer_cnt}>
+                            <Image
+                                source={require('../img/chat-icon.png')}
+                                resizeMode="contain" />
+                            <Text style={styles.optionsContainer_Text}>Tin nhắn</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleLogout}>
+                        <View style={styles.optionsContainer_cnt}>
+                            <Image
+                                source={require('../img/logout-icon.png')}
+                                resizeMode="contain" />
+                            <Text style={styles.optionsContainer_Text}>Đăng xuất</Text>
+                        </View>
+
                     </TouchableOpacity>
                 </View>
             )}
@@ -93,7 +142,6 @@ const styles = StyleSheet.create({
         height: 70,
         backgroundColor: 'white',
         marginHorizontal: 25,
-
         borderRadius: 10,
         elevation: 10,
         flexDirection: 'row',
@@ -154,11 +202,22 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 80,
         right: 10,
-        backgroundColor: 'grey',
+        backgroundColor: '#F6F8FF',
         padding: 10,
         borderRadius: 5,
-        width: 130,
-        height: 130,
+        width: "auto",
+        height: "auto",
+        justifyContent: 'space-between',
+    },
+    optionsContainer_Text: {
+        fontSize: 15,
+        color: 'black',
+        padding: 10,
+    },
+    optionsContainer_cnt: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
     },
 });
 
