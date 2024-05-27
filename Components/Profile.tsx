@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { 
   View, Text, StyleSheet, TouchableOpacity, Image, TextInput, 
-  TouchableWithoutFeedback, KeyboardAvoidingView, Keyboard, Platform 
+  TouchableWithoutFeedback, KeyboardAvoidingView, Keyboard, Platform, ActivityIndicator, Alert 
 } from 'react-native';
 import { AuthContext } from '../Context/AuthContext';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -11,14 +11,17 @@ import { showMessage } from 'react-native-flash-message';
 import database from '@react-native-firebase/database';
 import storage from '@react-native-firebase/storage';
 import { launchImageLibrary } from 'react-native-image-picker';
+import ProgressBar from './ProgressBar'; // Ensure you have a ProgressBar component
 
 export default function EditProfile() {
-    const { userData } = useContext(AuthContext);
+    const { userData,setUserData } = useContext(AuthContext);
     const [id, setId] = useState('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [img, setImg] = useState('');
     const [imageUri, setImageUri] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const navigation = useNavigation();
     const [edit, setEdit] = useState(false);
     const param = useRoute().params;
@@ -28,7 +31,49 @@ export default function EditProfile() {
     };
 
     const handleSavePress = async () => {
-        // Code to save profile changes
+        if (!name || !email ) {
+            Alert.alert('Error', 'Please fill in all fields');
+            return;
+        }
+        setLoading(true);
+
+        try {
+            let downloadURL = img;
+
+            if (imageUri) {
+                const reference = storage().ref(`/user_images/${id}`);
+                const task = reference.putFile(imageUri);
+
+                task.on('state_changed', taskSnapshot => {
+                    const progress = (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) * 100;
+                    setUploadProgress(progress);
+                });
+
+                await task;
+                downloadURL = await reference.getDownloadURL();
+            }
+
+            if(!imageUri){
+                downloadURL = img;
+            }
+            const userRef = database().ref(`/User/${id}`);
+            await userRef.update({
+                name: name,
+                email: email,
+                photo: downloadURL,
+            });
+            setUserData(prev => ({...prev,id, name, email, photo: downloadURL}));
+
+            Alert.alert('Success', 'Profile updated successfully');
+            setEdit(false);
+            navigation.goBack();
+        } catch (error) {
+            Alert.alert('Error', 'There was an error updating the profile');
+            console.error(error);
+        } finally {
+            setLoading(false);
+            setUploadProgress(0);
+        }
     };
 
     const handleCopyToClipboard = () => {
@@ -50,11 +95,9 @@ export default function EditProfile() {
 
     const findOrCreateRoom = async () => {
         try {
-            // Check if a room already exists between friend.id and userData.id
             const roomsRef = database().ref('ChatRooms');
             const snapshot = await roomsRef.once('value');
             const rooms = snapshot.val();
-            // Loop through the rooms to find a matching room
             let roomId;
             if (rooms) {
                 Object.keys(rooms).forEach(roomKey => {
@@ -62,19 +105,15 @@ export default function EditProfile() {
                     const participantIDs = room.participantIDs;
                     if (participantIDs && Array.isArray(participantIDs) &&
                         participantIDs.includes(param.friend.userID) && participantIDs.includes(userData.id)) {
-                        // Found a matching room
                         roomId = roomKey;
-                        return; // Exit the loop
+                        return;
                     }
                 });
             }
-            // If a matching room doesn't exist, create a new room
             if (!roomId) {
                 const newRoomRef = roomsRef.push();
                 roomId = newRoomRef.key;
-                // Check if param.friend.id exists before creating the room
                 if (param.friend && param.friend.userID) {
-                    // Set up the new room with participant IDs and other initial data
                     await newRoomRef.set({
                         participantIDs: [param.friend.userID, userData.id],
                         last_message: {
@@ -86,11 +125,10 @@ export default function EditProfile() {
                     throw new Error('Friend ID is missing');
                 }
             }
-            // Return the room ID
             return roomId;
         } catch (error) {
             console.error('Error finding or creating room:', error);
-            throw error; // Throw the error to handle it outside
+            throw error;
         }
     };
 
@@ -107,9 +145,7 @@ export default function EditProfile() {
         });
     };
 
-
     useEffect(() => {
-        // Fetch user data or friend data based on the route parameters
         if (param.userData) {
             setName(param.userData.name);
             setEmail(param.userData.email);
@@ -203,6 +239,19 @@ export default function EditProfile() {
                             </View>
                         </TouchableOpacity>
                     </View>
+                    {loading && (
+                        <View style={styles.loadingContainer}>
+                            <View style={styles.loading}>
+                                <ActivityIndicator size="large" color="#0000ff" />
+                                <ProgressBar
+                                    style="Horizontal"
+                                    indeterminate={false}
+                                    progress={uploadProgress / 100}
+                                />
+                                <Text style={styles.progressText}>{Math.round(uploadProgress)}%</Text>
+                            </View>
+                        </View>
+                    )}
                 </View>
             </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
@@ -212,48 +261,68 @@ export default function EditProfile() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F6F8FC',
+        backgroundColor: 'white',
+        position: 'relative',
     },
     header: {
+        flex: 1,
+        backgroundColor: 'white',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    body: {
+        flex: 9,
+        backgroundColor: 'white',
+        alignItems: 'center',
+    },
+    avatar: {
+        height: 100,
+        width: 100,
+        borderRadius: 50,
+        backgroundColor: '#c4c4c4',
+    },
+    info_container: {
+        width: '100%',
+        paddingHorizontal: 20,
+        marginTop: 20,
+    },
+    info: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingRight: 20,
-        height: 80,
-        justifyContent: 'space-between',
-    },
-    avatar: {        width: 90,
-        height: 90,
-        marginLeft: 10,
-        borderRadius: 50,
+        marginBottom: 20,
     },
     userName: {
         fontSize: 15,
         fontWeight: 'bold',
         color: 'black',
-        justifyContent: 'center',
-    },
-    body: {
-        flex: 1,
-    },
-    info_container: {
-        marginHorizontal: 20,
-        marginTop: 10,
-        backgroundColor: 'white',
-    },
-    info: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        height: 50,
-        justifyContent: 'space-between',
-        margin: 10,
     },
     btn_Save: {
-        backgroundColor: '#8ec04c',
+        backgroundColor: '#99ccff',
+        width: 80,
         height: 40,
+        borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        margin: 20,
+    },
+    loadingContainer: {
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    loading: {
+        backgroundColor: 'white',
         borderRadius: 10,
-    }
+        padding: 20,
+        alignItems: 'center',
+    },
+    progressText: {
+        color: 'black',
+        marginTop: 10,
+    },
 });
-

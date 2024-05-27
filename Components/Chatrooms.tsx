@@ -19,6 +19,7 @@ export default function ChatRooms() {
     const { userData } = useContext(AuthContext);
     const [usersFriends, setUsersFriends] = useState([]);
     const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
+    const loadImage = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
     const handleChatPress = (room: string, friend: object) => {
         navigation.navigate('chatscreen', { room, friend });
         console.log(friend);
@@ -97,7 +98,7 @@ export default function ChatRooms() {
         return (
             <TouchableOpacity style={styles.userList} onPress={() => handleChatPress(item.id, otherParticipant)}>
                 <View style={styles.userChat}>
-                    <Image source={{ uri: otherParticipant?.photo || 'https://placekitten.com/50/50' }} style={styles.avatar} />
+                    <Image source={{ uri: otherParticipant?.photo || loadImage }} style={styles.avatar} />
                     <View style={styles.userChatInfo}>
                         <Text style={styles.userName}>{otherParticipant?.name}</Text>
                         <View style={{ flexDirection: 'row' }}>

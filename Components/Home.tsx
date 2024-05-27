@@ -30,6 +30,9 @@ import { AuthContext } from '../Context/AuthContext';
 import { onGoogleLogout } from '../API/HandleLoginGoogle';
 import { useNavigation } from '@react-navigation/native';
 import { firebase } from '@react-native-firebase/database';
+import Icon1 from 'react-native-vector-icons/Ionicons';
+import Icon2 from 'react-native-vector-icons/Entypo';
+import Icon3 from 'react-native-vector-icons/Fontisto';
 const { width, height } = Dimensions.get('window');
 
 export default function Home(this: any): React.JSX.Element {
@@ -103,25 +106,19 @@ export default function Home(this: any): React.JSX.Element {
                 <View style={styles.optionsContainer}>
                     <TouchableOpacity onPress={handleProfile}>
                         <View style={styles.optionsContainer_cnt}>
-                            <Image
-                                source={require('../img/user-icon.png')}
-                                resizeMode="contain" />
+                            <Icon1 name='person-circle-outline' size={32} color={'black'} style={{ marginRight: 5 }} />
                             <Text style={styles.optionsContainer_Text}>Thông tin cá nhân</Text>
                         </View>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={handleMessage}>
                         <View style={styles.optionsContainer_cnt}>
-                            <Image
-                                source={require('../img/chat-icon.png')}
-                                resizeMode="contain" />
+                            <Icon3 name='messenger' size={26} color={'black'} style={{ marginRight: 5 }} />
                             <Text style={styles.optionsContainer_Text}>Tin nhắn</Text>
                         </View>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={handleLogout}>
                         <View style={styles.optionsContainer_cnt}>
-                            <Image
-                                source={require('../img/logout-icon.png')}
-                                resizeMode="contain" />
+                            <Icon2 name='log-out' size={27} color={'black'} style={{ marginRight: 5 }} />
                             <Text style={styles.optionsContainer_Text}>Đăng xuất</Text>
                         </View>
 
