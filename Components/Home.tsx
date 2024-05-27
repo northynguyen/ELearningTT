@@ -75,7 +75,7 @@ export default function Home(this: any): React.JSX.Element {
         importUserData();
     }, []);
     return (
-        <ScrollView style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
             <View style={styles.UI_userInfo}>
                 <View style={styles.hello}>
                     <Text style={{ fontSize: 10, color: 'black' }}>Hello</Text>
@@ -125,7 +125,7 @@ export default function Home(this: any): React.JSX.Element {
                     </TouchableOpacity>
                 </View>
             )}
-        </ScrollView>
+        </View>
 
     );
 }

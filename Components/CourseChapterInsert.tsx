@@ -43,6 +43,7 @@ export default function App() {
   const saveData = async () => {
     if (!description || !title || !input || !output ) {
       Alert.alert('Error', 'Please fill in all fields');
+      return;
     }
     setLoading(true);
 

@@ -184,8 +184,8 @@ export default function EditProfile() {
                             <Icon name="arrowleft" size={30} color="black" style={{ alignItems: 'flex-start' }} />
                         </TouchableOpacity>
                         {id === userData.id && (
-                            <TouchableOpacity onPress={handleEditPress} style={{ width: 40, height: 40, justifyContent: 'center', alignItems: 'center' }}>
-                                <Image source={require('../img/edit.png')} style={{ height: 24, width: 24 }} />
+                            <TouchableOpacity onPress={handleEditPress} style={{ width: 60, height: 40, justifyContent: 'center', alignItems: 'center' }}>
+                                <Image source={require('../img/edit.png')} style={{ height: 28, width: 28 }} />
                             </TouchableOpacity>
                         )}
                     </View>

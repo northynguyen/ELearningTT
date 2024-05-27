@@ -73,7 +73,7 @@ export default function App() {
   };
 
   const saveData = async () => {
-    if (!description || !title) {
+    if (!description || !title || imageUri === null || imageUri === '' ) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }

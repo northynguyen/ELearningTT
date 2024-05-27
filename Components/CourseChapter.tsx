@@ -194,7 +194,8 @@ export default function CourseChapter() {
           }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
               <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'black' }}>{item.name}</Text>
-              <View style={{ flexDirection: "row" }}>
+              {isUserAdmin && (
+                <View style={{ flexDirection: "row" }}>
                 <TouchableOpacity style={{ paddingBottom: 10 }}>
                   <Icon1 name="edit" size={25} color="black" onPress={() => editchapter(item)} />
                 </TouchableOpacity>
@@ -202,6 +203,7 @@ export default function CourseChapter() {
                   <Icon1 name="trash" size={25} color="red" onPress={() => deleteChapter(item)} />
                 </TouchableOpacity>
               </View>
+              )}
             </View>
             <Text style={{ color: 'black', textAlign: 'justify', marginTop: 5 }}>{item.description}</Text>
             {item.input !== '' ?

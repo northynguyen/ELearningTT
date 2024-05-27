@@ -64,11 +64,12 @@ export default function App() {
 
 
   const saveData = async () => {
-    if (!description || !title || !imageUri || !courseType) {
+    if (!description || !title || imageUri===null || imageUri===''|| !courseType) {
       Alert.alert('Error', 'Please fill in all fields');
+      return;
     }
+    console.log(imageUri);
     setLoading(true);
-
     try {
       let downloadURL = imageUri;
 

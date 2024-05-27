@@ -48,7 +48,7 @@ export default function ChatScreen() {
             <View style={styles.container}>
                 <View style={styles.header}>
                     <View style={styles.header_left}>
-                        <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.goBack()}>
+                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => navigation.goBack()}>
                             <Icon name="arrowleft" size={30} color="black" />
                         </TouchableOpacity>
                         <Image source={{ uri: friend.photo }} style={styles.avatar} />
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingRight: 20,
+        paddingRight: 15,
         backgroundColor: 'white',
     },
     header_left: {
