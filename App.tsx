@@ -21,12 +21,14 @@ export default function App() {
     const hasFetchedData = useRef(false);
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
+    const importUserData = (userData: UserData) => {
     const importUserData = async (userData: UserData) => {
         try {
             const db = firebase.database().ref('/User');
             const snapshot = await db.orderByChild('email').equalTo(userData.email).once('value');
 
             if (snapshot.exists()) {
+                // You can perform other actions here if the user already exists.
                 console.log('User already exists:', userData.email);
                 snapshot.forEach((childSnapshot) => {
                     const existingUserData = childSnapshot.val();

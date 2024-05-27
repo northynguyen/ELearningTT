@@ -7,6 +7,8 @@ import {
   Dimensions,
   StyleSheet,
   TouchableOpacity,
+  Modal,
+  Alert,
 } from 'react-native';
 import database from '@react-native-firebase/database';
 import { useNavigation } from '@react-navigation/native';
@@ -27,6 +29,8 @@ const VideoCourses = () => {
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState<VideoInfo[]>([]);
   const [isUserAdmin, setIsUserAdmin] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<VideoInfo | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const { userData } = useContext(AuthContext);
   const navigation = useNavigation();
 
@@ -81,8 +85,46 @@ const VideoCourses = () => {
   };
 
   const onPressInsert = () => {
-    console.log();
     navigation.navigate('insert-video-course');
+  };
+
+  const handleLongPress = (video: VideoInfo) => {
+    if (isUserAdmin) {
+    setSelectedVideo(video);
+    setModalVisible(true);
+    }
+  };
+
+  const handleDelete = () => {
+    if (selectedVideo) {
+      Alert.alert(
+        'Delete',
+        `Are you sure you want to delete the video: ${selectedVideo.name}?`,
+        [
+          {
+            text: 'Cancel',
+            onPress: () => setModalVisible(false),
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: () => {
+              database().ref(`/VideoSource/${selectedVideo.id}`).remove()
+                .then(() => {
+                  Alert.alert('Deleted', 'Video deleted successfully');
+                  setModalVisible(false);
+                })
+                .catch((error) => {
+                  Alert.alert('Error', 'Failed to delete video');
+                  console.error(error);
+                  setModalVisible(false);
+                });
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }
   };
 
   return (
@@ -90,7 +132,7 @@ const VideoCourses = () => {
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Video Courses</Text>
         {isUserAdmin && (
-          <TouchableOpacity onPress={() => onPressInsert()} style={{ paddingBottom: 10 }} >
+          <TouchableOpacity onPress={onPressInsert} style={{ paddingBottom: 10 }} >
             <Icon name="plussquareo" size={30} color="black" />
           </TouchableOpacity>
         )}
@@ -100,12 +142,32 @@ const VideoCourses = () => {
         keyExtractor={item => item.id}
         horizontal
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.containerCourses} onPress={() => onPress(item)}>
+          <TouchableOpacity
+            style={styles.containerCourses}
+            onPress={() => onPress(item)}
+            onLongPress={() => handleLongPress(item)}>
             <Image source={{ uri: item.image }} style={styles.img_courses} />
           </TouchableOpacity>
         )}
         showsHorizontalScrollIndicator={false}
       />
+
+      <Modal
+        transparent={true}
+        visible={modalVisible}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity style={styles.modalButton} onPress={handleDelete}>
+              <Text style={styles.modalButtonText}>Delete</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -145,6 +207,27 @@ const styles = StyleSheet.create({
     top: 0,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 300,
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalButton: {
+    padding: 10,
+    marginVertical: 5,
+  },
+  modalButtonText: {
+    fontSize: 18,
+    color: 'black',
   },
 });
 

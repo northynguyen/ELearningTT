@@ -1,14 +1,12 @@
-/* eslint-disable space-infix-ops */
-/* eslint-disable quotes */
-/* eslint-disable semi */
-import { View, Text, TouchableOpacity, Image, ScrollView, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, Image, FlatList, Alert } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import CourseContent from './CoureContent';
 import database from '@react-native-firebase/database';
 import { AuthContext } from '../Context/AuthContext';
 import { checkUserRole } from '../Context/checkUser';
+import Comment from './Comment';
 
 interface Course {
     description: string;
@@ -24,15 +22,12 @@ export default function CoursesDetails() {
     const { userData } = useContext(AuthContext);
     const [userProgress, setUserProgress] = useState([]);
     const [isUserAdmin, setIsUserAdmin] = useState(false);
-    const [showOptions, setShowOptions] = useState(false);
+    const [content, setContent] = useState(''); // State để lưu trữ nội dung của trang
 
-    useEffect(() => {
-        setCourse(param?.courseDetail);
-        console.log(course);
-        getCourseProgress();
-    }, [param?.courseContentId]);
+    const navigation = useNavigation();
+    const fallbackImage = 'https://via.placeholder.com/150';
 
-    const getCourseProgress = async () => {
+    const getCourseProgress: any = async () => {
         try {
             const uid = userData.id;
             const courseId = param?.courseDetail.id;
@@ -42,6 +37,10 @@ export default function CoursesDetails() {
                 .equalTo(uid)
                 .once('value');
             const data = snapshot.val();
+            if(!data) {
+                setUserProgress([]);
+                return null;
+            } 
             if (data) {
                 // Filter data by courseId
                 const result = Object.keys(data)
@@ -50,9 +49,10 @@ export default function CoursesDetails() {
                         id: key,
                         courseid: data[key].courseid,
                         lessonid: data[key].lessonid,
+                        userid: data[key].userid,
                     }));
                 setUserProgress(result);
-                console.log(result);
+                console.log('aaa' + result);
             }
         } catch (error) {
             console.error('Error fetching course progress:', error);
@@ -60,29 +60,40 @@ export default function CoursesDetails() {
         }
     };
 
-    const navigation = useNavigation();
-    const fallbackImage = 'https://via.placeholder.com/150';
-
     const fetchUserRole = async () => {
         const role = await checkUserRole(userData);
         setIsUserAdmin(role);
     };
 
     useEffect(() => {
+        setCourse(param?.courseDetail);
+        getCourseProgress();
         fetchUserRole();
-    }, []);
+        console.log(userProgress);
+    }, [param.courseContentId, param.courseContent]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            setCourse(param?.courseDetail);
+        }, [param?.courseDetail])
+    );
+
+    useFocusEffect(
+        React.useCallback(() => {
+            setCourse(param?.courseDetail);
+        }, [param?.chapterInfo])
+    );
 
     const editCourse = () => {
         if (course.type === 'basic' || course.type === 'advance') {
             navigation.navigate('insert-course', { courseDetail: course });
-        }
-        else {
+        } else {
             navigation.navigate('insert-video-course', { courseDetail: course });
         }
     }
+
     return (
         <View style={{ padding: 20, paddingTop: 20, flex: 1 }}>
-
             <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
                 <TouchableOpacity style={{ paddingBottom: 10 }} onPress={() => navigation.goBack()}>
                     <Icon name="arrowleft" size={30} color="black" />
@@ -93,26 +104,29 @@ export default function CoursesDetails() {
                     </TouchableOpacity>
                 )}
             </View>
-            <ScrollView>
-                <View>
-                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: "black" }}>{course.name}</Text>
-                    <Text style={{ color: "gray" }}>By Tubeguruji</Text>
-                    <Image source={{ uri: course.image || fallbackImage }}
-                        style={{ height: 150, marginTop: 10, borderRadius: 10 }} />
-                    <Text style={{
-                        marginTop: 10,
-                        fontSize: 16, fontWeight: 'bold', color: "black"
-                    }}>About Course
-                    </Text>
-                    <Text
-                        style={{ color: "gray", textAlign: "justify" }}>{course.description}
-                    </Text>
-                </View>
-
-                <CourseContent id={course.id} courseType={course.type} userProgress={userProgress} courseDetail={course} />
-            </ScrollView>
-
+            <FlatList
+                data={[{ key: 'courseInfo' }]}
+                renderItem={({ item }) => (
+                    <View style={{ marginTop: 10 }}>
+                        <Text style={{ fontSize: 20, fontWeight: 'bold', color: "black" }}>{course.name}</Text>
+                        <Text style={{ color: "gray" }}>By Tubeguruji</Text>
+                        <Image source={{ uri: course.image || fallbackImage }} style={{ height: 150, marginTop: 10, borderRadius: 10 }} />
+                        <Text style={{ marginTop: 10, fontSize: 16, fontWeight: 'bold', color: "black" }}>About Course</Text>
+                        <Text style={{ color: "gray", textAlign: "justify" }}>{course.description}</Text>
+                    </View>
+                )}
+                // eslint-disable-next-line react/no-unstable-nested-components
+                ListFooterComponent={() => (
+                    <>
+                        {/* Nội dung của trang */}
+                        <Text>{content}</Text>
+                        <CourseContent id={course.id} courseType={course.type} userProgress={userProgress} courseDetail={course} />
+                        <View style={{ width: "100%" }}>
+                            <Comment courseId={course.id} courseType={course.type} />
+                        </View>
+                    </>
+                )}
+            />
         </View>
-    )
-}
-
+    );
+};

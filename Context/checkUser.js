@@ -7,10 +7,8 @@ export const checkUserRole = async (userData) => {
             let userRole;
             snapshot.forEach(childSnapshot => {
                 const existingUserData = childSnapshot.val();
-                console.log('User already exists:', existingUserData);
                 userRole = existingUserData.role;
             });
-            console.log('User role:', userRole);
             return userRole === 'admin';
         } else {
             // Nếu người dùng không tồn tại, bạn có thể thực hiện các hành động khác ở đây
