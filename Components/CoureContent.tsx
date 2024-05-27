@@ -223,11 +223,10 @@ export default function CourseContent({ id, courseType, userProgress, courseDeta
                                     <Text style={styles.modalButtonText}>Delete</Text>
                                 </TouchableOpacity>
                             </>
-                        ) : (
-                            <TouchableOpacity style={styles.modalButton}onPress={() => handleResetProgress(selectedLesson)}>
+                        ) : null}
+                        <TouchableOpacity style={styles.modalButton}onPress={() => handleResetProgress(selectedLesson)}>
                                 <Text style={styles.modalButtonText}>Reset Progress</Text>
                             </TouchableOpacity>
-                        )}
                         <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
                             <Text style={styles.modalButtonText}>Cancel</Text>
                         </TouchableOpacity>

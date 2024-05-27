@@ -86,39 +86,42 @@ export default function CourseChapter() {
       }
     } catch (e) {
       const courseProgressRef = database().ref('CourseProgress');
-
-      // Tạo một truy vấn để kiểm tra sự tồn tại của mục
+  
+      // Query to check if course progress exists for the user and lesson
       courseProgressRef.orderByChild('userid')
         .equalTo(userData.id)
         .once('value', snapshot => {
+          // Iterate over the snapshot to check if a matching record exists
           let exists = false;
           snapshot.forEach(childSnapshot => {
             const item = childSnapshot.val();
+            // Check if the course progress matches the current course and lesson
             if (item.courseid === param.courseId && item.lessonid === param.lesson.id) {
               exists = true;
-              return true; // Dừng vòng lặp forEach
+              return true; // Exit the loop early if a match is found
             }
           });
           if (!exists) {
-            // Nếu mục chưa tồn tại, thêm mục mới
+            // If course progress doesn't exist, create a new record
             courseProgressRef.push().set({
               userid: userData.id,
               courseid: param.courseId,
               lessonid: param.lesson.id
             })
               .then(() => {
-                console.log('Data updated.');
-                navigation.navigate('course-detail', { courseContentId: param.lesson.id, courseDetail: param.courseDetail }, { merge: true });
+                console.log('Course progress created.');
+                navigation.navigate('course-detail', { courseContentId: param.lesson.id, courseDetail: param.courseDetail });
               })
-              .catch(error => console.error('Error updating data:', error));
+              .catch(error => console.error('Error creating course progress:', error));
           } else {
             console.log('Course progress already exists');
-            // Điều hướng sang màn hình course-detail nếu mục đã tồn tại
-            navigation.navigate('course-detail', { courseContentId: param.lesson.id, courseDetail: param.courseDetail }, { merge: true });
+            // If course progress already exists, navigate to course detail screen
+            navigation.navigate('course-detail', { courseContentId: param.lesson.id, courseDetail: param.courseDetail });
           }
         });
     }
   };
+  
 
   const fetchUserRole = async () => {
     const role = await checkUserRole(userData);

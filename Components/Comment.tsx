@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import database from '@react-native-firebase/database';
@@ -35,6 +36,7 @@ export default function Comment({ courseId, courseType }: { courseId: string , c
   const { userData } = useContext(AuthContext);
   const [showReplies, setShowReplies] = useState(false);
   const [Replies, setReplies] = useState(false);
+  const [loading, setLoading] = useState(true); // State để kiểm soát việc hiển thị ActivityIndicator
   const navigation = useNavigation();
 
   if (courseType !== 'basic' && courseType !== 'advance') {
@@ -94,6 +96,7 @@ export default function Comment({ courseId, courseType }: { courseId: string , c
         }
 
         setComments(loadedComments);
+        setLoading(false); // Kết thúc quá trình tải dữ liệu
       });
 
       return () => db.off('value');
@@ -220,16 +223,22 @@ export default function Comment({ courseId, courseType }: { courseId: string , c
     <SafeAreaView style={styles.container}>
       <View style={styles.commentSection}>
         <Text style={styles.heading}>Comments</Text>
-        <FlatList
-          data={showAll ? comments : comments.slice(0, 3)}
-          renderItem={renderComment}
-          keyExtractor={(item) => item.id}
-          style={styles.commentList}
-        />
-        {comments.length > 3 && (
-          <TouchableOpacity onPress={() => setShowAll(!showAll)}>
-            <Text style={styles.showMore}>{showAll ? 'Show Less' : 'Show More'}</Text>
-          </TouchableOpacity>
+        {loading ? ( // Kiểm tra nếu đang tải dữ liệu thì hiển thị ActivityIndicator
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <>
+            <FlatList
+              data={showAll ? comments : comments.slice(0, 3)}
+              renderItem={renderComment}
+              keyExtractor={(item) => item.id}
+              style={styles.commentList}
+            />
+            {comments.length > 3 && (
+              <TouchableOpacity onPress={() => setShowAll(!showAll)}>
+                <Text style={styles.showMore}>{showAll ? 'Show Less' : 'Show More'}</Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
         {Replies === false && (
           <View style={styles.commentForm}>
@@ -356,12 +365,12 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     padding: 10,
     backgroundColor: '#007BFF',
-    borderRadius: 4,
-  },
-  cancelButton: {
-    marginLeft: 5,
-    padding: 10,
-    backgroundColor: 'red',
-    borderRadius: 4,
-  },
-});
+    borderRadius: 4  },
+    cancelButton: {
+      marginLeft: 5,
+      padding: 10,
+      backgroundColor: 'red',
+      borderRadius: 4,
+    },
+  });
+  
