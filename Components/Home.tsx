@@ -29,6 +29,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import { AuthContext } from '../Context/AuthContext';
 import { onGoogleLogout } from '../API/HandleLoginGoogle';
 import { useNavigation } from '@react-navigation/native';
+import { firebase } from '@react-native-firebase/database';
 const { width, height } = Dimensions.get('window');
 
 export default function Home(this: any): React.JSX.Element {
@@ -36,19 +37,40 @@ export default function Home(this: any): React.JSX.Element {
     const [showOptions, setShowOptions] = useState(false);
     const navigation = useNavigation();
     const handleToggleOptions = () => {
-        console.log('Toggle Options');
         setShowOptions(!showOptions);
     };
     const handleLogout = async () => {
         await onGoogleLogout(setUserData);
     };
     const handleProfile = () => {
-        navigation.navigate('profile');
+        navigation.navigate('profile', { userData: userData });
     };
     const handleMessage = () => {
         navigation.navigate('chatrooms');
     };
 
+    const importUserData = async () => {
+        try {
+            const db = firebase.database().ref('/User');
+            const snapshot = await db.orderByChild('email').equalTo(userData.email).once('value');
+
+            if (snapshot.exists()) {
+                console.log('User already exists:', userData.email);
+                snapshot.forEach((childSnapshot) => {
+                    const existingUserData = childSnapshot.val();
+                    const userId = childSnapshot.key;
+                    setUserData({ ...existingUserData, id: userId });
+                    return true; // Exit the forEach loop
+                });
+            }
+        } catch (error) {
+            console.error('Error updating data:', error);
+        }
+    };
+
+    useEffect(() => {
+        importUserData();
+    }, []);
     return (
         <ScrollView style={{ flex: 1 }}>
             <View style={styles.UI_userInfo}>

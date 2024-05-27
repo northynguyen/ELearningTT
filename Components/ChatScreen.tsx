@@ -45,28 +45,28 @@ export default function ChatScreen() {
     };
     return (
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'android' ? 'padding' : 'height'}>
-            <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-                <View style={styles.container}>
-                    <View style={styles.header}>
-                        <View style={styles.header_left}>
-                            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.goBack()}>
-                                <Icon name="arrowleft" size={30} color="black" />
-                            </TouchableOpacity>
-                            <Image source={{ uri: friend.photo }} style={styles.avatar} />
-                            <Text style={styles.userName}>{friend.name}</Text>
-                        </View>
-                        <Image source={require('../img/info.png')} style={{ height: 30, width: 30 }} />
-                    </View>
-                    <ChatContent chatRoomID={room} friendID={friend.id} />
-                    <View style={styles.footerInput}>
-                        <TextInput placeholder='Nhắn tin' placeholderTextColor={'gray'} value={message} onChangeText={setMessage} style={styles.message} />
-                        <TouchableOpacity onPress={handleSend} style={{ flex: 1 }}>
-                            <Image source={require('../img/send.png')} style={{ height: 30, width: 30, }} />
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <View style={styles.header_left}>
+                        <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.goBack()}>
+                            <Icon name="arrowleft" size={30} color="black" />
                         </TouchableOpacity>
+                        <Image source={{ uri: friend.photo }} style={styles.avatar} />
+                        <Text style={styles.userName}>{friend.name}</Text>
                     </View>
-                </View>
-            </TouchableWithoutFeedback>
+                    <TouchableOpacity onPress={() => navigation.navigate('profile', { friend: friend })}>
+                        <Image source={require('../img/info.png')} style={{ height: 30, width: 30 }} />
+                    </TouchableOpacity>
 
+                </View>
+                <ChatContent chatRoomID={room} />
+                <View style={styles.footerInput}>
+                    <TextInput placeholder='Nhắn tin' placeholderTextColor={'gray'} value={message} onChangeText={setMessage} style={styles.message} />
+                    <TouchableOpacity onPress={handleSend} style={{ flex: 1 }}>
+                        <Image source={require('../img/send.png')} style={{ height: 30, width: 30, }} />
+                    </TouchableOpacity>
+                </View>
+            </View>
         </KeyboardAvoidingView >
     )
 }

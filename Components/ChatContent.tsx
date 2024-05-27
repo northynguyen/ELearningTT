@@ -10,7 +10,7 @@ type Message = {
     timestamp: string;
 };
 
-const ChatContent = ({ chatRoomID, friendID }) => {
+const ChatContent = ({ chatRoomID }) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [message, setMessage] = useState('');
     const { userData } = useContext(AuthContext);

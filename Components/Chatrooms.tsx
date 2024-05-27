@@ -21,6 +21,7 @@ export default function ChatRooms() {
     const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
     const handleChatPress = (room: string, friend: object) => {
         navigation.navigate('chatscreen', { room, friend });
+        console.log(friend);
     };
 
     const fetchUserDetails = async (userIds: string[]) => {
@@ -92,6 +93,7 @@ export default function ChatRooms() {
         const lastMessage = item.last_message;
         const otherParticipantId = item.participantIDs.find(id => id !== userData.id);
         const otherParticipant = usersFriends.find(friend => friend.userID === otherParticipantId);
+
         return (
             <TouchableOpacity style={styles.userList} onPress={() => handleChatPress(item.id, otherParticipant)}>
                 <View style={styles.userChat}>
@@ -110,28 +112,29 @@ export default function ChatRooms() {
 
     return (
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'android' ? 'padding' : 'height'}>
-            <View style={styles.container}>
-                <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+
+            <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+                <View style={styles.container}>
                     <View style={styles.header}>
                         <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.goBack()}>
                             <Icon name="arrowleft" size={30} color="black" />
                         </TouchableOpacity>
                         <Text style={styles.header_text}>Đoạn chat</Text>
                     </View>
-                </TouchableWithoutFeedback>
-                <View style={styles.scroll}>
-                    <View style={styles.searchBox}>
-                        <Icon name='search1' size={30} color={'black'} style={styles.icon} />
-                        <TextInput placeholder='Search' placeholderTextColor={'lightgray'} style={styles.searchText} />
+                    <View style={styles.scroll}>
+                        <View style={styles.searchBox}>
+                            <Icon name='search1' size={30} color={'black'} style={styles.icon} />
+                            <TextInput placeholder='Search' placeholderTextColor={'lightgray'} style={styles.searchText} />
+                        </View>
+                        <FlatList
+                            data={chatRooms}
+                            renderItem={renderChatItem}
+                            keyExtractor={item => item.id}
+                        />
                     </View>
-                    <FlatList
-                        data={chatRooms}
-                        renderItem={renderChatItem}
-                        keyExtractor={item => item.id}
-                        nestedScrollEnabled={false}
-                    />
                 </View>
-            </View>
+            </TouchableWithoutFeedback>
+
         </KeyboardAvoidingView >
     )
 }
