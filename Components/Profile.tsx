@@ -1,5 +1,8 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, TextInput, TouchableWithoutFeedback, KeyboardAvoidingView, Keyboard, Platform } from 'react-native'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react';
+import { 
+  View, Text, StyleSheet, TouchableOpacity, Image, TextInput, 
+  TouchableWithoutFeedback, KeyboardAvoidingView, Keyboard, Platform 
+} from 'react-native';
 import { AuthContext } from '../Context/AuthContext';
 import Icon from 'react-native-vector-icons/AntDesign';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -10,15 +13,14 @@ import storage from '@react-native-firebase/storage';
 import { launchImageLibrary } from 'react-native-image-picker';
 
 export default function EditProfile() {
-    const { userData, setUserData } = useContext(AuthContext);
+    const { userData } = useContext(AuthContext);
     const [id, setId] = useState('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [img, setimg] = useState('');
+    const [img, setImg] = useState('');
     const [imageUri, setImageUri] = useState('');
     const navigation = useNavigation();
     const [edit, setEdit] = useState(false);
-    const [chat, setChat] = useState(false);
     const param = useRoute().params;
 
     const handleEditPress = () => {
@@ -26,30 +28,7 @@ export default function EditProfile() {
     };
 
     const handleSavePress = async () => {
-        const userRef = database().ref(`/User/${userData.id}`);
-        try {
-            if (imageUri) {
-                const imageUrl = await uploadImage(imageUri);
-                await userRef.update({
-                    name: name,
-                    email: email,
-                    photo: imageUrl,
-                });
-                setUserData({ ...userData, name: name, email: email, photo: imageUrl });
-                setimg(imageUrl);
-            } else {
-                await userRef.update({
-                    name: name,
-                    email: email,
-                });
-                setUserData({ ...userData, name: name, email: email });
-            }
-            setEdit(false);
-
-            navigation.navigate('home');
-        } catch (error) {
-            console.error('Failed to update user data: ', error);
-        }
+        // Code to save profile changes
     };
 
     const handleCopyToClipboard = () => {
@@ -61,6 +40,58 @@ export default function EditProfile() {
             backgroundColor: 'rgba(0, 0, 0, 0)',
             color: 'black',
         });
+    };
+
+    const handleChat = async () => {
+        const room = await findOrCreateRoom();
+        console.log(room);
+        navigation.navigate('chatscreen', { room, friend: param?.friend });
+    };
+
+    const findOrCreateRoom = async () => {
+        try {
+            // Check if a room already exists between friend.id and userData.id
+            const roomsRef = database().ref('ChatRooms');
+            const snapshot = await roomsRef.once('value');
+            const rooms = snapshot.val();
+            // Loop through the rooms to find a matching room
+            let roomId;
+            if (rooms) {
+                Object.keys(rooms).forEach(roomKey => {
+                    const room = rooms[roomKey];
+                    const participantIDs = room.participantIDs;
+                    if (participantIDs && Array.isArray(participantIDs) &&
+                        participantIDs.includes(param.friend.userID) && participantIDs.includes(userData.id)) {
+                        // Found a matching room
+                        roomId = roomKey;
+                        return; // Exit the loop
+                    }
+                });
+            }
+            // If a matching room doesn't exist, create a new room
+            if (!roomId) {
+                const newRoomRef = roomsRef.push();
+                roomId = newRoomRef.key;
+                // Check if param.friend.id exists before creating the room
+                if (param.friend && param.friend.userID) {
+                    // Set up the new room with participant IDs and other initial data
+                    await newRoomRef.set({
+                        participantIDs: [param.friend.userID, userData.id],
+                        last_message: {
+                            text: '',
+                            timestamp: ''
+                        }
+                    });
+                } else {
+                    throw new Error('Friend ID is missing');
+                }
+            }
+            // Return the room ID
+            return roomId;
+        } catch (error) {
+            console.error('Error finding or creating room:', error);
+            throw error; // Throw the error to handle it outside
+        }
     };
 
     const selectImage = () => {
@@ -76,28 +107,20 @@ export default function EditProfile() {
         });
     };
 
-    const uploadImage = async (uri) => {
-        if (!uri) return null;
-        const uploadUri = uri;
-        const filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
-        const storageRef = storage().ref(`user_images/${id}.img`);
-        await storageRef.putFile(uploadUri);
-        const url = await storageRef.getDownloadURL();
-        return url;
-    };
 
     useEffect(() => {
+        // Fetch user data or friend data based on the route parameters
         if (param.userData) {
             setName(param.userData.name);
             setEmail(param.userData.email);
             setId(param.userData.id);
-            setimg(param.userData.photo);
+            setImg(param.userData.photo);
         }
         if (param.friend) {
             setName(param.friend.name);
             setEmail(param.friend.email);
             setId(param.friend.userID);
-            setimg(param.friend.photo);
+            setImg(param.friend.photo);
         }
     }, [param.userData, param.friend]);
 
@@ -124,7 +147,7 @@ export default function EditProfile() {
                         <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.goBack()}>
                             <Icon name="arrowleft" size={30} color="black" style={{ alignItems: 'flex-start' }} />
                         </TouchableOpacity>
-                        {param.userData && (
+                        {id === userData.id && (
                             <TouchableOpacity onPress={handleEditPress} style={{ width: 40, height: 40, justifyContent: 'center', alignItems: 'center' }}>
                                 <Image source={require('../img/edit.png')} style={{ height: 24, width: 24 }} />
                             </TouchableOpacity>
@@ -133,7 +156,11 @@ export default function EditProfile() {
                     <View style={styles.body}>
                         <View style={{ alignItems: 'center' }}>
                             <TouchableOpacity onPress={edit ? selectImage : null}>
-                                <Image source={{ uri: imageUri || img }} style={styles.avatar} />
+                                {imageUri || img ? (
+                                    <Image source={{ uri: imageUri || img }} style={styles.avatar} />
+                                ) : (
+                                    <View style={styles.avatar} />
+                                )}
                             </TouchableOpacity>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Text style={{ padding: 20, color: 'black' }}>{id}</Text>
@@ -141,14 +168,14 @@ export default function EditProfile() {
                                     <Icon name="copy1" size={18} color="black" />
                                 </TouchableOpacity>
                             </View>
-                            <TouchableOpacity style={{ display: chat ? 'flex' : 'none' }}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#8ec04c', borderRadius: 10, padding: 10, marginTop: 10 }}>
-                                    <Image
-                                        source={require('../img/chat-icon2.png')}
-                                        resizeMode="contain" />
-                                    <Text style={{ paddingLeft: 10, color: 'white' }}>Tin nhắn</Text>
-                                </View>
-                            </TouchableOpacity>
+                            {id !== userData.id && (
+                                <TouchableOpacity onPress={handleChat}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#8ec04c', borderRadius: 10, padding: 10, marginTop: 10 }}>
+                                        <Image source={require('../img/chat-icon2.png')} resizeMode="contain" />
+                                        <Text style={{ paddingLeft: 10, color: 'white' }}>Nhắn tin</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            )}
                         </View>
                         <View style={styles.info_container}>
                             <View style={styles.info}>
@@ -179,7 +206,7 @@ export default function EditProfile() {
                 </View>
             </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -194,8 +221,7 @@ const styles = StyleSheet.create({
         height: 80,
         justifyContent: 'space-between',
     },
-    avatar: {
-        width: 90,
+    avatar: {        width: 90,
         height: 90,
         marginLeft: 10,
         borderRadius: 50,
@@ -229,4 +255,5 @@ const styles = StyleSheet.create({
         margin: 20,
         borderRadius: 10,
     }
-})
+});
+

@@ -12,6 +12,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import database from '@react-native-firebase/database';
 import { AuthContext } from '../Context/AuthContext';
+import { useNavigation } from '@react-navigation/native';
 
 interface Comment {
   id: string;
@@ -19,6 +20,7 @@ interface Comment {
   userId: string;
   userName: string;
   userImg: string;
+  userEmail: string;
   time: string;
   replies: Comment[];
 }
@@ -33,32 +35,55 @@ export default function Comment({ courseId, courseType }: { courseId: string , c
   const { userData } = useContext(AuthContext);
   const [showReplies, setShowReplies] = useState(false);
   const [Replies, setReplies] = useState(false);
+  const navigation = useNavigation();
 
   if (courseType !== 'basic' && courseType !== 'advance') {
     courseId = 'v' + courseId;
   }
+
   useEffect(() => {
+    const fetchUserData = async (userId: string) => {
+      const userSnapshot = await database().ref(`User/${userId}`).once('value');
+      const userdata = userSnapshot.val();
+      return {
+        userName: userdata?.name || 'Unknown User',
+        userImg: userdata?.photo || 'https://placekitten.com/50/50',
+        userEmail: userdata?.email || 'Unknown Email',
+      };
+    };
+
     const fetchData = async () => {
       const db = database().ref(`Comment/${courseId}`);
-      db.on('value', snapshot => {
+      db.on('value', async snapshot => {
         const data = snapshot.val();
         const loadedComments: Comment[] = [];
 
         if (data) {
           for (let id in data) {
             const commentData = data[id];
+            const userdata = await fetchUserData(commentData.userId);
             const replies = commentData.Reply
-              ? Object.keys(commentData.Reply).map(replyId => ({
-                  id: replyId,
-                  ...commentData.Reply[replyId],
-                }))
+              ? await Promise.all(
+                  Object.keys(commentData.Reply).map(async replyId => {
+                    const replyData = commentData.Reply[replyId];
+                    const replyUserData = await fetchUserData(replyData.userId);
+                    return {
+                      id: replyId,
+                      ...replyData,
+                      userName: replyUserData.userName,
+                      userImg: replyUserData.userImg,
+                      userEmail: replyUserData.userEmail,
+                    };
+                  })
+                )
               : [];
             loadedComments.push({
               id,
               content: commentData.content,
               userId: commentData.userId,
-              userName: commentData.userId === userData.id ? 'You' : commentData.userName,
-              userImg: commentData.userImg,
+              userName: commentData.userId === userData.id ? 'You' : userdata.userName,
+              userImg: userdata.userImg,
+              userEmail: userdata.userEmail,
               time: commentData.time,
               replies: replies.map(reply => ({
                 ...reply,
@@ -76,6 +101,7 @@ export default function Comment({ courseId, courseType }: { courseId: string , c
 
     fetchData();
   }, [courseId]);
+
 
   const handleAddComment = () => {
     if (newComment.trim()) {
@@ -142,12 +168,22 @@ export default function Comment({ courseId, courseType }: { courseId: string , c
     setShowReplies(!showReplies);
   };
 
+  const handleUserPress = (userID: string, name: string, email: string, img: string) => {
+    if (userID === userData?.id) {
+      navigation.navigate('profile', {userData: userData});
+    } else {
+      navigation.navigate('profile',{ friend:{ userID, name, email, photo: img }});
+    }
+  };
+
   const renderComment = ({ item }: { item: Comment }) => (
     <View>
       <View style={styles.comment}>
         <Image source={{ uri: item.userImg }} style={styles.avatar} />
         <View style={styles.commentContent}>
-          <Text style={styles.name}>{item.userName}</Text>
+          <TouchableOpacity onPress={() => handleUserPress(item.userId, item.userName, item.userEmail, item.userImg)}>
+            <Text style={styles.name}>{item.userName}</Text>
+          </TouchableOpacity>
           <Text style={styles.text}>{item.content}</Text>
           <Text style={styles.time}>{item.time}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -165,7 +201,9 @@ export default function Comment({ courseId, courseType }: { courseId: string , c
                 <View key={reply.id} style={styles.reply}>
                   <Image source={{ uri: reply.userImg }} style={styles.avatar} />
                   <View style={styles.commentContent}>
-                    <Text style={styles.name}>{reply.userName}</Text>
+                    <TouchableOpacity onPress={() => handleUserPress(reply.userId, reply.userName, reply.userEmail, reply.userImg)}>
+                      <Text style={styles.name}>{reply.userName}</Text>
+                    </TouchableOpacity>
                     <Text style={styles.text}>{reply.content}</Text>
                     <Text style={styles.time}>{reply.time}</Text>
                   </View>

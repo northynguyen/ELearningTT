@@ -97,12 +97,12 @@ export default function ChatRooms() {
         return (
             <TouchableOpacity style={styles.userList} onPress={() => handleChatPress(item.id, otherParticipant)}>
                 <View style={styles.userChat}>
-                    <Image source={{ uri: otherParticipant?.photo }} style={styles.avatar} />
+                    <Image source={{ uri: otherParticipant?.photo || 'https://placekitten.com/50/50' }} style={styles.avatar} />
                     <View style={styles.userChatInfo}>
                         <Text style={styles.userName}>{otherParticipant?.name}</Text>
                         <View style={{ flexDirection: 'row' }}>
                             <Text style={styles.lastMessage}>{lastMessage.text}</Text>
-                            <Text style={styles.lastMessage}>{new Date(lastMessage.timestamp).toLocaleTimeString()}</Text>
+                            <Text style={styles.timelastMessage}>{new Date(lastMessage.timestamp).toLocaleTimeString()}</Text>
                         </View>
                     </View>
                 </View>
@@ -197,6 +197,13 @@ const styles = StyleSheet.create({
 
     },
     lastMessage:
+    {
+        color: 'gray',
+        fontSize: 15,
+        paddingLeft: 15,
+        width: '70%',
+    },
+    timelastMessage:
     {
         color: 'gray',
         fontSize: 12,

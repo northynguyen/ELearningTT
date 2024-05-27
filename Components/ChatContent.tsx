@@ -53,7 +53,7 @@ const ChatContent = ({ chatRoomID }) => {
         return (
             <View style={messageStyle}>
                 <Text style={timeStyle}>{formatTimestamp(item.timestamp)}</Text>
-                <View style={styles.textContainer}>
+                <View style={isUser ?styles.usertextContainer:styles.friendtextContainer}>
                     <Text style={styles.text}>{item.text}</Text>
                 </View>
             </View>
@@ -78,11 +78,20 @@ const styles = StyleSheet.create({
         backgroundColor: '#f5f5f5',
         padding: 10,
     },
-    textContainer: {
-        backgroundColor: 'white',
+    usertextContainer: {
+        backgroundColor: '#6699CC',       
         paddingVertical: 18,
         paddingHorizontal: 15,
-        borderRadius: 15,
+        borderRadius: 25,
+        elevation: 5,
+        maxWidth: '80%',
+        marginBottom: 20,
+    },
+    friendtextContainer: {
+        backgroundColor: '#EEF0F1',
+        paddingVertical: 18,
+        paddingHorizontal: 15,
+        borderRadius: 25,
         elevation: 5,
         maxWidth: '80%',
         marginBottom: 20,

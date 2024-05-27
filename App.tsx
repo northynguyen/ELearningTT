@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { View, StyleSheet } from 'react-native';
 import React, { useEffect, useRef } from 'react';
 import Login from './Components/Login';
@@ -21,7 +22,6 @@ export default function App() {
     const hasFetchedData = useRef(false);
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    const importUserData = (userData: UserData) => {
     const importUserData = async (userData: UserData) => {
         try {
             const db = firebase.database().ref('/User');
@@ -75,7 +75,8 @@ export default function App() {
             </AuthContext.Provider>
         </View>
     );
-}
+
+};
 
 const styles = StyleSheet.create({
     container: {

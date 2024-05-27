@@ -15,8 +15,8 @@ export default function ChatScreen() {
         if (message.trim().length > 0) {
             const currentTime = new Date();
             currentTime.setHours(currentTime.getUTCHours() + 7); // Adjust to +7:00 timezone
-            const timestamp = currentTime.toISOString();
-
+            const timestamp = currentTime.getTime(); // Get timestamp in milliseconds
+            const timestamp2 = currentTime.toISOString();
             const messageData = {
                 receiverId: friend.id,
                 senderId: userData.id,
@@ -24,13 +24,12 @@ export default function ChatScreen() {
                 timestamp: timestamp
             };
 
-            const newMessageRef = database().ref(`/ChatRooms/${room}/messages`).push();
-
+            // Use timestamp as a key for the message
             const updates = {};
-            updates[`/ChatRooms/${room}/messages/${newMessageRef.key}`] = messageData;
+            updates[`/ChatRooms/${room}/messages/${timestamp}`] = messageData;
             updates[`/ChatRooms/${room}/last_message`] = {
                 text: message,
-                timestamp: timestamp
+                timestamp: timestamp2
             };
 
             database().ref().update(updates)
@@ -43,6 +42,7 @@ export default function ChatScreen() {
                 });
         }
     };
+
     return (
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'android' ? 'padding' : 'height'}>
             <View style={styles.container}>
@@ -63,7 +63,7 @@ export default function ChatScreen() {
                 <View style={styles.footerInput}>
                     <TextInput placeholder='Nhắn tin' placeholderTextColor={'gray'} value={message} onChangeText={setMessage} style={styles.message} />
                     <TouchableOpacity onPress={handleSend} style={{ flex: 1 }}>
-                        <Image source={require('../img/send.png')} style={{ height: 30, width: 30, }} />
+                        <Image source={require('../img/send.png')} style={{ height: 30, width: 30 }} />
                     </TouchableOpacity>
                 </View>
             </View>
