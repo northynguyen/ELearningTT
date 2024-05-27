@@ -131,14 +131,15 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontFamily: 'Inter',
   },
-
   loadingIndicator: {
-  position: 'absolute',
-  alignSelf: 'center',
-  justifyContent: 'center',
-  backgroundColor: 'transparent',
-  width: '100%',
-  height: '100%',
+    position: 'absolute',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    width: '100%',
+    height: '100%',
+  },
 },
-});
+
+);
 

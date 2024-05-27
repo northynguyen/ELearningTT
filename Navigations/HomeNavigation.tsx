@@ -12,6 +12,9 @@ import CourseChapterInsert from '../Components/CourseChapterInsert';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import CourseContent from '../Components/CoureContent';
+import Chatrooms from '../Components/Chatrooms';
+import ChatScreen from '../Components/ChatScreen';
+import Profile from '../Components/Profile';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +30,9 @@ export default function HomeNavigation() {
                 <Stack.Screen name="insert-course" component ={CourseInsert} />
                 <Stack.Screen name="insert-course-content" component ={CourseContentInsert} />
                 <Stack.Screen name="insert-course-chapter" component ={CourseChapterInsert} />
-            </Stack.Navigator>
+                <Stack.Screen name="chatrooms" component={Chatrooms} />
+                <Stack.Screen name="profile" component={Profile} />
+                <Stack.Screen name="chatscreen" component={ChatScreen} />
+        </Stack.Navigator>
     );
 }
