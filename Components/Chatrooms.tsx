@@ -203,6 +203,7 @@ const styles = StyleSheet.create({
         fontSize: 15,
         paddingLeft: 15,
         width: '70%',
+        maxHeight: 35,
     },
     timelastMessage:
     {
