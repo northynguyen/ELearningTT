@@ -8,7 +8,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ProgressBar from './ProgressBar';
 import storage from '@react-native-firebase/storage';
-
+import database from '@react-native-firebase/database';
 
 interface Course {
   description: string;
@@ -64,57 +64,81 @@ export default function App() {
 
 
   const saveData = async () => {
-    if (!description || !title || imageUri===null || imageUri===''|| !courseType) {
+    if (!description || !title || !imageUri || !courseType) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
+  
     console.log(imageUri);
     setLoading(true);
+  
     try {
       let downloadURL = imageUri;
-
+  
       if (imageUri) {
         const reference = storage().ref(`/CourseList/${Date.now()}`);
         const task = reference.putFile(imageUri);
-
+  
         task.on('state_changed', taskSnapshot => {
           const progress = (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) * 100;
           setUploadProgress(progress);
         });
-
+  
         await task;
         downloadURL = await reference.getDownloadURL();
-
+  
         if (course && course.image) {
           try {
             await storage().refFromURL(course.image).delete();
           } catch (error) {
-
-            throw error; // Chỉ ném lại lỗi nếu không phải lỗi "object-not-found"
+            console.error(error);
           }
         }
       }
-
-      const db = firebase.database().ref('/CourseList');
+  
+      const db = database().ref('/CourseList');
       if (course) {
         await db.child(course.id).update({
           Description: description,
           Name: title,
-          Image: imageUri,
+          Image: downloadURL,
           Type: courseType,
         });
-        const updatedCourse = { ...course, description, name: title, image: imageUri, type: courseType };
+        const updatedCourse = { ...course, description, name: title, image: downloadURL, type: courseType };
         Alert.alert('Success', 'Course updated successfully', [
           { text: 'OK', onPress: () => navigation.navigate('course-detail', { courseDetail: updatedCourse }) },
         ]);
       } else {
-        const newCourseRef = db.push();
+        const counterRef = database().ref('/CourseCounter');
+        const counterSnapshot = await counterRef.once('value');
+        let newId = 1;
+  
+        if (counterSnapshot.exists()) {
+          newId = counterSnapshot.val() + 1;
+        }
+  
+        // Ensure newId is unique
+        let idExists = true;
+        while (idExists) {
+          const idCheck = await db.child(newId.toString()).once('value');
+          if (idCheck.exists()) {
+            newId++;
+          } else {
+            idExists = false;
+          }
+        }
+  
+        await counterRef.set(newId);
+  
+        const newCourseRef = db.child(newId.toString());
         await newCourseRef.set({
           Description: description,
           Name: title,
-          Image: imageUri,
+          Image: downloadURL,
           Type: courseType,
+          Lesson: ["Demo"],
         });
+  
         Alert.alert('Success', 'Course created successfully', [
           { text: 'OK', onPress: () => navigation.goBack() },
         ]);
@@ -122,8 +146,7 @@ export default function App() {
     } catch (error) {
       Alert.alert('Error', 'There was an error saving the course');
       console.error(error);
-    }
-    finally {
+    } finally {
       setLoading(false);
       setUploadProgress(0);
     }

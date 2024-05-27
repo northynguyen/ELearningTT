@@ -7,13 +7,12 @@ import {
   StyleSheet,
   FlatList,
   Image,
+  ActivityIndicator,
   TouchableOpacity,
-  Modal,
-  Alert
 } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import database from '@react-native-firebase/database';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import { checkUserRole } from '../Context/checkUser';
 import { AuthContext } from '../Context/AuthContext';
@@ -35,8 +34,6 @@ export default function Course() {
   const navigation = useNavigation();
   const { userData } = useContext(AuthContext);
   const [isUserAdmin, setIsUserAdmin] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState<CourseInfo | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -45,10 +42,18 @@ export default function Course() {
       db.on('value', snapshot => {
         const data = snapshot.val();
         const loadedCourses = [];
+        // Kiểm tra data không phải là null hoặc undefined trước khi lặp
         if (data) {
           for (let id in data) {
-            if (data[id] && data[id].Image && data[id].Description && data[id].Name && data[id].Type) {
-              const lessonCount = Object.keys(data[id].Lesson).length;
+            // Kiểm tra thêm để đảm bảo data[id] không phải là null hoặc undefined
+            if (
+              data[id] &&
+              data[id].Image &&
+              data[id].Description &&
+              data[id].Name &&
+              data[id].Type
+            ) {
+              const lessonCount = Object.keys(data[id].Lesson).length - 1;
               loadedCourses.push({
                 id,
                 image: data[id].Image,
@@ -64,7 +69,7 @@ export default function Course() {
         setLoading(false);
       });
 
-      return () => db.off('value');
+      return () => db.off('value'); // Clean up the listener on unmount
     };
 
     fetchData();
@@ -80,63 +85,23 @@ export default function Course() {
   }, [userData]);
 
   if (loading) {
-    return <Text style={{ fontSize: 20, color: 'black' }}>Loading...</Text>;
+    return <Text style={{fontSize: 20, color: 'black'}}>Loading...</Text>;
   }
 
   const onPressCourse = (course: CourseInfo) => {
-    navigation.navigate('course-detail', { courseDetail: course });
+    navigation.navigate('course-detail', {courseDetail: course});
   };
 
   const onPressAddCourse = () => {
     navigation.navigate('insert-course');
   };
-
-  const handleLongPress = (course: CourseInfo) => {
-    if (isUserAdmin) {
-      setSelectedCourse(course);
-      setModalVisible(true);
-    }
-  };
-
-  const handleDelete = () => {
-    if (selectedCourse) {
-      Alert.alert(
-        'Delete',
-        `Are you sure you want to delete the course: ${selectedCourse.name}?`,
-        [
-          {
-            text: 'Cancel',
-            onPress: () => setModalVisible(false),
-            style: 'cancel',
-          },
-          {
-            text: 'OK',
-            onPress: () => {
-              database().ref(`/CourseList/${selectedCourse.id}`).remove()
-                .then(() => {
-                  Alert.alert('Deleted', 'Course deleted successfully');
-                  setModalVisible(false);
-                })
-                .catch((error) => {
-                  Alert.alert('Error', 'Failed to delete course');
-                  console.error(error);
-                  setModalVisible(false);
-                });
-            },
-          },
-        ],
-        { cancelable: false }
-      );
-    }
-  };
-
   return (
     <View style={styles.container}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+      <View style={{flexDirection:"row",justifyContent:"space-between"}}>
         <Text style={styles.headerCourses}>Basic Popular Courses</Text>
         {isUserAdmin ? (
-          <TouchableOpacity style={{ paddingBottom: 10 }} onPress={onPressAddCourse}>
-            <Icon name="plussquareo" size={30} color="black" />
+          <TouchableOpacity style={{paddingBottom:10}} onPress={onPressAddCourse}>
+            <Icon name= "plussquareo" size={30} color="black" />
           </TouchableOpacity>) : null
         }
       </View>
@@ -144,12 +109,11 @@ export default function Course() {
         data={courses.filter(item => item.type === 'basic')}
         keyExtractor={item => item.id}
         horizontal
-        renderItem={({ item }) => (
+        renderItem={({item}) => (
           <TouchableOpacity
             style={styles.containerCourses}
-            onPress={() => onPressCourse(item)}
-            onLongPress={() => handleLongPress(item)}>
-            <Image source={{ uri: item.image }} style={styles.img_courses} />
+            onPress={() => onPressCourse(item)}>
+            <Image source={{uri: item.image}} style={styles.img_courses} />
             <View style={styles.CoursesInfo}>
               <Text style={styles.textName}>{item.name}</Text>
               <Text style={styles.textLesson}>Lessons: {item.lessonCount}</Text>
@@ -159,11 +123,11 @@ export default function Course() {
         showsHorizontalScrollIndicator={false}
       />
 
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+      <View style={{flexDirection:"row",justifyContent:"space-between"}}>
         <Text style={styles.headerCourses}>Advance Popular Courses</Text>
         {isUserAdmin ? (
-          <TouchableOpacity style={{ paddingBottom: 10 }} onPress={onPressAddCourse}>
-            <Icon name="plussquareo" size={30} color="black" />
+          <TouchableOpacity style={{paddingBottom:10}} onPress={onPressAddCourse}>
+            <Icon name= "plussquareo" size={30} color="black" />
           </TouchableOpacity>) : null
         }
       </View>
@@ -171,12 +135,11 @@ export default function Course() {
         data={courses.filter(item => item.type === 'advance')}
         keyExtractor={item => item.id}
         horizontal
-        renderItem={({ item }) => (
+        renderItem={({item}) => (
           <TouchableOpacity
             style={styles.containerCourses}
-            onPress={() => onPressCourse(item)}
-            onLongPress={() => handleLongPress(item)}>
-            <Image source={{ uri: item.image }} style={styles.img_courses} />
+            onPress={() => onPressCourse(item)}>
+            <Image source={{uri: item.image}} style={styles.img_courses} />
             <View style={styles.CoursesInfo}>
               <Text style={styles.textName}>{item.name}</Text>
               <Text style={styles.textLesson}>Lessons: {item.lessonCount}</Text>
@@ -185,23 +148,6 @@ export default function Course() {
         )}
         showsHorizontalScrollIndicator={false}
       />
-
-      <Modal
-        transparent={true}
-        visible={modalVisible}
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <TouchableOpacity style={styles.modalButton} onPress={handleDelete}>
-              <Text style={styles.modalButtonText}>Delete</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
-              <Text style={styles.modalButtonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -244,26 +190,5 @@ const styles = StyleSheet.create({
   CoursesInfo: {
     marginLeft: 10,
     width: '100%',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    width: 300,
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  modalButton: {
-    padding: 10,
-    marginVertical: 5,
-  },
-  modalButtonText: {
-    fontSize: 18,
-    color: 'black',
   },
 });
