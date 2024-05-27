@@ -4,9 +4,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { onGoogleButtonPress } from '../API/HandleLoginGoogle';
 import database from '@react-native-firebase/database';
-import database from '@react-native-firebase/database';
 import {
-  ActivityIndicator,
   ActivityIndicator,
   Dimensions,
   Image,
@@ -35,9 +33,7 @@ GoogleSignin.configure({
   iosClientId: '1065593939332-27sqkgpmi0hb6ssaqip5fm0uj6ocbjkm.apps.googleusercontent.com',
 });
 
-webClientId: '1065593939332-258cvhe9b7e9ukh8mtferjt73avhtkr4.apps.googleusercontent.com',
-  iosClientId: '1065593939332-27sqkgpmi0hb6ssaqip5fm0uj6ocbjkm.apps.googleusercontent.com',
-});
+
 
 
 export default function Login(this: any): React.JSX.Element {
@@ -135,15 +131,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontFamily: 'Inter',
   },
-  loadingIndicator: {
-    position: 'absolute',
-    alignSelf: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-    width: '100%',
-    height: '100%',
-  },
-},
+
   loadingIndicator: {
   position: 'absolute',
   alignSelf: 'center',

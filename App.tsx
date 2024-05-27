@@ -23,12 +23,10 @@ export default function App() {
     const [loading, setLoading] = React.useState(false);
     // eslint-disable-next-line @typescript-eslint/no-shadow
     const importUserData = (userData: UserData) => {
-        console.log(userData);
 
         const db = firebase.database().ref('/User');
         db.orderByChild('email').equalTo(userData.email).once('value', (snapshot) => {
             if (snapshot.exists()) {
-                console.log('User already exists:', userData.email);
                 // You can perform other actions here if the user already exists.
             } else {
                 // If the user doesn't exist, add the new user with userData.id as the key
@@ -57,11 +55,6 @@ export default function App() {
     return (
         <View style={styles.container}>
             <AuthContext.Provider value={{ userData, setUserData }}>
-                {userData ?
-                    <NavigationContainer>
-                        <HomeNavigation />
-                    </NavigationContainer>
-                    : <Login />}
                 {userData ?
                     <NavigationContainer>
                         <HomeNavigation />

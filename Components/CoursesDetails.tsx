@@ -1,7 +1,4 @@
-/* eslint-disable space-infix-ops */
-/* eslint-disable quotes */
-/* eslint-disable semi */
-import { View, Text, TouchableOpacity, Image, ScrollView, StyleSheet, FlatList } from 'react-native'
+import { View, Text, TouchableOpacity, Image, FlatList, Alert } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -9,7 +6,8 @@ import CourseContent from './CoureContent';
 import database from '@react-native-firebase/database';
 import { AuthContext } from '../Context/AuthContext';
 import { checkUserRole } from '../Context/checkUser';
-import  Comment  from './Comment';
+import Comment from './Comment';
+
 interface Course {
     description: string;
     id: string;
@@ -29,7 +27,7 @@ export default function CoursesDetails() {
     const navigation = useNavigation();
     const fallbackImage = 'https://via.placeholder.com/150';
 
-    const getCourseProgress = async () => {
+    const getCourseProgress: any = async () => {
         try {
             const uid = userData.id;
             const courseId = param?.courseDetail.id;
@@ -39,6 +37,10 @@ export default function CoursesDetails() {
                 .equalTo(uid)
                 .once('value');
             const data = snapshot.val();
+            if(!data) {
+                setUserProgress([]);
+                return null;
+            } 
             if (data) {
                 // Filter data by courseId
                 const result = Object.keys(data)
@@ -47,9 +49,10 @@ export default function CoursesDetails() {
                         id: key,
                         courseid: data[key].courseid,
                         lessonid: data[key].lessonid,
+                        userid: data[key].userid,
                     }));
                 setUserProgress(result);
-                console.log(result);
+                console.log('aaa' + result);
             }
         } catch (error) {
             console.error('Error fetching course progress:', error);
@@ -65,27 +68,21 @@ export default function CoursesDetails() {
     useEffect(() => {
         setCourse(param?.courseDetail);
         getCourseProgress();
-
         fetchUserRole();
-    }, [param.courseContentId]);
+        console.log(userProgress);
+    }, [param.courseContentId, param.courseContent]);
 
     useFocusEffect(
         React.useCallback(() => {
             setCourse(param?.courseDetail);
-            getCourseProgress();
         }, [param?.courseDetail])
     );
 
     useFocusEffect(
         React.useCallback(() => {
             setCourse(param?.courseDetail);
-            getCourseProgress();
         }, [param?.chapterInfo])
     );
-
-
-
-
 
     const editCourse = () => {
         if (course.type === 'basic' || course.type === 'advance') {
@@ -95,7 +92,6 @@ export default function CoursesDetails() {
         }
     }
 
-
     return (
         <View style={{ padding: 20, paddingTop: 20, flex: 1 }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
@@ -103,8 +99,6 @@ export default function CoursesDetails() {
                     <Icon name="arrowleft" size={30} color="black" />
                 </TouchableOpacity>
                 {isUserAdmin && (
-                    <TouchableOpacity style={{ paddingBottom: 10 }} onPress={editCourse}>
-                        <Icon name="setting" size={30} color="black" />
                     <TouchableOpacity style={{ paddingBottom: 10 }} onPress={editCourse}>
                         <Icon name="setting" size={30} color="black" />
                     </TouchableOpacity>
@@ -128,7 +122,7 @@ export default function CoursesDetails() {
                         <Text>{content}</Text>
                         <CourseContent id={course.id} courseType={course.type} userProgress={userProgress} courseDetail={course} />
                         <View style={{ width: "100%" }}>
-                            <Comment  courseId={course.id} courseType={course.type}/>
+                            <Comment courseId={course.id} courseType={course.type} />
                         </View>
                     </>
                 )}
@@ -136,4 +130,3 @@ export default function CoursesDetails() {
         </View>
     );
 };
-

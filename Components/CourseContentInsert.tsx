@@ -22,6 +22,7 @@ interface videoinfo {
   url: string;}
 
 interface contentinfo {
+  id: string;
   name: string;
 }
 export default function CourseContentInsert() {
@@ -46,8 +47,8 @@ export default function CourseContentInsert() {
         try {
           console.log(param?.ref);
           const db = firebase.database().ref(param?.ref );
-          if (videoInfo) {
-            await db.child(videoInfo.id).update({
+          if (content) {
+            await db.child(content.id).update({
               Name: title,
             });
             const updatedVideoInfo = { ...content, title };
@@ -105,7 +106,9 @@ export default function CourseContentInsert() {
             Alert.alert('Success', 'Course updated successfully', [
               { text: 'OK', onPress: () => navigation.navigate('play-video', { videoInfo: updatedVideoInfo }) },
             ]);
-          } else {
+          }
+
+          else {
             const newCourseRef = db.push();
             await newCourseRef.set({
               Description: description,
@@ -144,7 +147,13 @@ const getYouTubeVideoId = (url: string) => {
       setTitle(videoInfo.name);
       setYoutubeLink(`https://www.youtube.com/watch?v=${videoInfo.url}`);
     }
-  }, [param?.videoInfo]);
+    if (param?.lessonInfo) {
+      const lessonInfo = param?.lessonInfo as contentinfo;
+      setContent(lessonInfo);
+      setTitle(lessonInfo.name);
+    }
+  }, [param?.videoInfo, param?.lessonInfo]);
+
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={styles.container}

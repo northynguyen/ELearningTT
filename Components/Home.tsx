@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import {
     ActivityIndicator,
-    ActivityIndicator,
     Dimensions,
     Image,
     Keyboard,
@@ -35,7 +34,6 @@ export default function Home(this: any): React.JSX.Element {
     const { userData, setUserData } = useContext(AuthContext);
     const [showOptions, setShowOptions] = useState(false);
     const handleToggleOptions = () => {
-        console.log('Toggle Options');
         setShowOptions(!showOptions);
     };
     const handleLogout = async () => {

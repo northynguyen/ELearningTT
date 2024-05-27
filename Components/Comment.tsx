@@ -245,9 +245,9 @@ const styles = StyleSheet.create({
   },
   heading: {
     color: '#333',
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   commentList: {
     marginBottom: 20,
