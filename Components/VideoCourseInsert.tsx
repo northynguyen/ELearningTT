@@ -73,61 +73,70 @@ export default function App() {
   };
 
   const saveData = async () => {
-    if (!description || !title || imageUri === null || imageUri === '' ) {
+    if (!description || !title || imageUri === null || imageUri === '') {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
-
+  
     setLoading(true);
-
+  
     try {
       let newImageUri = imageUri;
-
-      // Nếu có ảnh mới được chọn
-      if (imageUri) {
+  
+      if (imageUri && imageUri !== course?.image) {
         const reference = storage().ref('/CourseList/' + Date.now());
         const task = reference.putFile(imageUri);
-
+  
         task.on('state_changed', (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           setUploadProgress(progress);
         });
-
+  
         await task;
         newImageUri = await reference.getDownloadURL();
-
-        // Nếu có ảnh cũ, xóa ảnh cũ từ Firebase Storage
+  
         if (course && course.image) {
           try {
             await storage().refFromURL(course.image).delete();
           } catch (error) {
             if (error.code !== 'storage/object-not-found') {
-              throw error; // Chỉ ném lại lỗi nếu không phải lỗi "object-not-found"
+              throw error;
             }
           }
         }
       }
-
+  
       const db = firebase.database().ref('/VideoSource');
       if (course) {
         await db.child(course.id).update({
           Description: description,
           Title: title,
-          Image: newImageUri || '', // Sử dụng imageUri nếu tồn tại, nếu không sẽ sử dụng ''
+          Image: newImageUri || '',
+          Type: courseType,
         });
         const updatedCourse = { ...course, description, name: title, image: newImageUri || '', type: courseType };
         Alert.alert('Success', 'Course updated successfully', [
-          { text: 'OK', onPress: () => navigation.navigate('course-detail', { courseDetail: updatedCourse }) },
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('course-detail', { courseDetail: updatedCourse }),
+          },
         ]);
       } else {
         const newCourseRef = db.push();
         await newCourseRef.set({
           Description: description,
           Title: title,
-          Image: newImageUri || '', // Sử dụng imageUri nếu tồn tại, nếu không sẽ sử dụng ''
+          Image: newImageUri || '',
+          Type: courseType,
         });
         Alert.alert('Success', 'Course created successfully', [
-          { text: 'OK', onPress: () => navigation.goBack() },
+          {
+            text: 'OK',
+            onPress: () => {
+              const newCourse = { id: newCourseRef.key, description, name: title, image: newImageUri || '', type: courseType };
+              navigation.navigate('course-detail', { courseDetail: newCourse });
+            },
+          },
         ]);
       }
     } catch (error) {
@@ -138,6 +147,7 @@ export default function App() {
       setUploadProgress(0);
     }
   };
+
 
 
   const cancelData = () => {
@@ -293,5 +303,3 @@ const styles = StyleSheet.create({
     color: 'black',
   },
 });
-
-

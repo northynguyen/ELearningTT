@@ -22,6 +22,7 @@ export default function App() {
   const [description, setDescription] = useState('');
   const [title, setTitle] = useState('');
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [img , setImg] = useState<string | null>(null);
   const [courseType, setCourseType] = useState('basic');
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(false);
@@ -35,6 +36,7 @@ export default function App() {
       setCourse(courseDetail);
       setDescription(courseDetail.description);
       setTitle(courseDetail.name);
+      setImg(courseDetail.image);
       setImageUri(courseDetail.image);
       setCourseType(courseDetail.type);
     }
@@ -56,37 +58,32 @@ export default function App() {
           const uri = response.assets[0].uri;
           if (uri) {
             setImageUri(uri);
+            setImg(null);
           }
         }
       }
     });
   };
 
-
   const saveData = async () => {
     if (!description || !title || !imageUri || !courseType) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
-  
     console.log(imageUri);
     setLoading(true);
-  
     try {
       let downloadURL = imageUri;
-  
-      if (imageUri) {
+      if (imageUri && img === null) {
         const reference = storage().ref(`/CourseList/${Date.now()}`);
         const task = reference.putFile(imageUri);
-  
         task.on('state_changed', taskSnapshot => {
           const progress = (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) * 100;
           setUploadProgress(progress);
         });
-  
+
         await task;
         downloadURL = await reference.getDownloadURL();
-  
         if (course && course.image) {
           try {
             await storage().refFromURL(course.image).delete();
@@ -94,8 +91,9 @@ export default function App() {
             console.error(error);
           }
         }
+      } else {
+        downloadURL = img;
       }
-  
       const db = database().ref('/CourseList');
       if (course) {
         await db.child(course.id).update({
@@ -106,17 +104,17 @@ export default function App() {
         });
         const updatedCourse = { ...course, description, name: title, image: downloadURL, type: courseType };
         Alert.alert('Success', 'Course updated successfully', [
-          { text: 'OK', onPress: () => navigation.navigate('course-detail', { courseDetail: updatedCourse }) },
+          { text: 'OK', onPress: () => navigation.navigate('course-detail', { courseDetail: updatedCourse, refresh: true }) },
         ]);
       } else {
         const counterRef = database().ref('/CourseCounter');
         const counterSnapshot = await counterRef.once('value');
         let newId = 1;
-  
+
         if (counterSnapshot.exists()) {
           newId = counterSnapshot.val() + 1;
         }
-  
+
         // Ensure newId is unique
         let idExists = true;
         while (idExists) {
@@ -127,9 +125,9 @@ export default function App() {
             idExists = false;
           }
         }
-  
+
         await counterRef.set(newId);
-  
+
         const newCourseRef = db.child(newId.toString());
         await newCourseRef.set({
           Description: description,
@@ -138,7 +136,7 @@ export default function App() {
           Type: courseType,
           Lesson: ["Demo"],
         });
-  
+
         Alert.alert('Success', 'Course created successfully', [
           { text: 'OK', onPress: () => navigation.goBack() },
         ]);
@@ -322,4 +320,3 @@ const styles = StyleSheet.create({
     color: 'black',
   },
 });
-

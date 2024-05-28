@@ -81,6 +81,11 @@ export default function CourseContentInsert() {
         Alert.alert('Error', 'Please provide a YouTube link');
         return;
       }
+      
+      if (!isValidYouTubeLink(youtubeLink)) {
+        Alert.alert('Error', 'Invalid YouTube link format');
+        return;
+      }
 
       // Lấy ID video từ URL YouTube
       const videoId = getYouTubeVideoId(youtubeLink);
@@ -126,7 +131,10 @@ export default function CourseContentInsert() {
       }
     }
 };
-
+const isValidYouTubeLink = (link) => {
+  const regex = /^(https?:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
+  return regex.test(link);
+};
 const getYouTubeVideoId = (url: string) => {
     // Sử dụng biểu thức chính quy để trích xuất ID video từ URL YouTube
     const match = url.match(/(?:youtu\.be\/|watch\?v=)([^&]+)/);
