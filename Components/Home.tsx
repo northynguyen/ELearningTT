@@ -89,12 +89,6 @@ export default function Home(this: any): React.JSX.Element {
             </View>
             <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'android' ? 'padding' : 'height'}>
                 <View style={styles.container}>
-                    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-                        <View style={styles.searchBox}>
-                            <Icon name='search1' size={30} color={'black'} style={styles.icon} />
-                            <TextInput placeholder='Search' placeholderTextColor={'lightgray'} style={styles.searchText} />
-                        </View>
-                    </TouchableWithoutFeedback>
                     <ScrollView showsVerticalScrollIndicator={false} style={styles.content}>
                         <Slider />
                         <VideoCourses />
