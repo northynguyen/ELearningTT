@@ -69,6 +69,12 @@ export default function CourseDetails() {
     fetchUserRole();
   }, [course]);
 
+  useEffect(() => {
+    setCourse(route.params?.courseDetail);
+    getCourseProgress();
+    fetchUserRole();
+}, [route.params?.courseContentId, route.params?.courseContent]);
+
   useFocusEffect(
     React.useCallback(() => {
       setCourse(route.params?.courseDetail || {});
