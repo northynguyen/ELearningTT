@@ -111,4 +111,14 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         zIndex: 2, // Đảm bảo FlatList hiển thị trên các đối tượng khác
     },
+    userInfo: {
+        flex: 1,
+    },
+    userName: {
+        fontWeight: 'bold',
+        color: 'black'
+    },
+    userId: {
+        color: 'gray',
+    },
 });

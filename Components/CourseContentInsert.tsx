@@ -81,7 +81,6 @@ export default function CourseContentInsert() {
         Alert.alert('Error', 'Please provide a YouTube link');
         return;
       }
-      
       if (!isValidYouTubeLink(youtubeLink)) {
         Alert.alert('Error', 'Invalid YouTube link format');
         return;
