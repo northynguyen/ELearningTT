@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../Context/AuthContext';
 import database from '@react-native-firebase/database';
+import Search from './Search';
 type ChatRoom = {
     id: string;
     last_message: {
@@ -123,10 +124,7 @@ export default function ChatRooms() {
                         <Text style={styles.header_text}>Đoạn chat</Text>
                     </View>
                     <View style={styles.scroll}>
-                        <View style={styles.searchBox}>
-                            <Icon name='search1' size={30} color={'black'} style={styles.icon} />
-                            <TextInput placeholder='Search' placeholderTextColor={'lightgray'} style={styles.searchText} />
-                        </View>
+                        <Search />
                         <FlatList
                             data={chatRooms}
                             renderItem={renderChatItem}
@@ -156,27 +154,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         marginLeft: 20,
     },
-    searchBox: {
-        height: 50,
-        backgroundColor: 'white',
-        marginHorizontal: 25,
-        borderRadius: 20,
-        elevation: 10,
-        marginTop: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    icon: {
-        width: 40,
-        height: 'auto',
-        paddingLeft: 10,
-        marginRight: 10,
-    },
-    searchText: {
-        color: 'black',
-        flex: 1,
-    },
+
     scroll: {
     },
     avatar: {
